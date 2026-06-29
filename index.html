@@ -7,105 +7,116 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=38e0ad30ba2fbda393ecae50943972b7&libraries=services&autoload=false"></script>
 <style>
   body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
 
-  /* Custom inputs */
   .form-input {
     width: 100%; padding: 9px 12px; border: 1px solid #d1d5db;
     border-radius: 8px; font-size: 14px; color: #111827;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    background: white;
+    transition: border-color 0.15s, box-shadow 0.15s; background: white;
+    box-sizing: border-box;
   }
   .form-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
-  .form-input:disabled, .form-input.readonly { background: #f9fafb; color: #6b7280; }
 
-  /* Cards */
   .card {
     background: white; border-radius: 14px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
     margin-bottom: 16px; padding: 22px 24px;
   }
-  .card-title {
-    font-size: 15px; font-weight: 700; color: #111827;
-    margin-bottom: 16px; display: flex; align-items: center; gap-8px;
-  }
+  .card-title { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 16px; }
 
-  /* Buttons */
   .btn { padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; border: none; }
   .btn-blue { background: #1e40af; color: white; }
   .btn-blue:hover { background: #1d4ed8; }
-  .btn-blue:active { background: #1e3a8a; }
   .btn-gray { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
   .btn-gray:hover { background: #e5e7eb; }
   .btn-orange { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; font-size: 12px; padding: 7px 12px; }
   .btn-orange:hover { background: #ffedd5; }
-  .btn-red-soft { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 
-  /* Route builder */
-  .route-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .route-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
-  .dot-green { background: #dcfce7; color: #15803d; }
-  .dot-blue { background: #dbeafe; color: #1d4ed8; }
-  .dot-red { background: #fee2e2; color: #b91c1c; }
-  .route-line { width: 2px; height: 20px; background: #d1d5db; margin: 0 auto 0 14px; }
-
-  /* Result section */
-  .result-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
-  .result-row:last-child { border-bottom: none; }
-  .result-sub { display: flex; justify-content: space-between; align-items: center; padding: 5px 0 5px 20px; }
-  .total-box { background: linear-gradient(135deg, #1e40af, #1e3a8a); color: white; border-radius: 12px; padding: 20px 24px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; }
-
-  /* Badges */
-  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; }
-  .badge-blue { background: #dbeafe; color: #1e40af; }
-  .badge-purple { background: #ede9fe; color: #6d28d9; }
-  .badge-green { background: #dcfce7; color: #15803d; }
-  .badge-orange { background: #fff7ed; color: #c2410c; }
-  .badge-red { background: #fee2e2; color: #b91c1c; }
-
-  /* Alert boxes */
-  .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 8px; }
-  .alert-green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
-  .alert-red { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
-  .alert-yellow { background: #fefce8; border: 1px solid #fde68a; color: #92400e; }
-  .alert-blue { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
-
-  /* Transport toggle */
-  .transport-tab { padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
-  .transport-tab.active { background: #1e40af; color: white; border-color: #1e40af; }
-  .transport-tab.inactive { background: white; color: #6b7280; border-color: #e5e7eb; }
-
-  /* Print styles */
-  @media print {
-    .no-print { display: none !important; }
-    body { background: white; font-size: 12px; }
-    .card { box-shadow: none; border: 1px solid #e5e7eb; margin-bottom: 12px; padding: 14px; }
-    .total-box { background: #1e40af !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .page-header-print { display: block !important; }
-  }
-  .page-header-print { display: none; }
-
-  /* Separator line in route */
-  .route-connector { display: flex; flex-direction: column; align-items: center; width: 32px; flex-shrink: 0; }
-
-  /* Sticky header */
-  .top-bar { position: sticky; top: 0; z-index: 50; background: white; border-bottom: 1px solid #e5e7eb; }
-
-  /* ── 주소 검색 ── */
+  /* 주소 검색 드롭다운 */
   .addr-wrap { flex: 1; min-width: 0; }
-  .addr-selected-tag {
-    display: flex; align-items: center; gap: 6px; margin-top: 4px;
+  .addr-relative { position: relative; }
+  .addr-dropdown {
+    position: absolute; top: calc(100% + 3px); left: 0; right: 0;
+    background: white; border: 1px solid #d1d5db; border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.13); z-index: 500;
+    max-height: 260px; overflow-y: auto; padding: 4px 0; list-style: none; margin: 0;
+  }
+  .addr-dropdown.hidden { display: none; }
+  .addr-item {
+    padding: 9px 14px; cursor: pointer; font-size: 13px;
+    display: flex; flex-direction: column; gap: 2px;
+    border-bottom: 1px solid #f3f4f6; transition: background 0.1s;
+  }
+  .addr-item:last-child { border-bottom: none; }
+  .addr-item:hover, .addr-item.focused { background: #eff6ff; }
+  .addr-name { font-weight: 600; color: #111827; font-size: 13px; }
+  .addr-sub  { color: #6b7280; font-size: 11px; }
+  .addr-cat  { color: #9ca3af; font-size: 10px; }
+  .addr-status { padding: 11px 14px; font-size: 13px; color: #9ca3af; text-align: center; }
+
+  .addr-tag {
+    display: flex; align-items: center; gap: 5px; margin-top: 4px;
     padding: 4px 10px; background: #eff6ff; border: 1px solid #bfdbfe;
     border-radius: 6px; font-size: 12px; color: #1d4ed8; font-weight: 500;
   }
   .btn-search {
-    padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
-    cursor: pointer; background: #eff6ff; color: #1d4ed8;
-    border: 1px solid #bfdbfe; white-space: nowrap; flex-shrink: 0;
+    padding: 9px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; background: #f3f4f6; color: #374151;
+    border: 1px solid #e5e7eb; white-space: nowrap; flex-shrink: 0;
     transition: background 0.15s;
   }
-  .btn-search:hover { background: #dbeafe; }
+  .btn-search:hover { background: #e5e7eb; }
+
+  /* Route builder */
+  .route-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .route-connector { display: flex; flex-direction: column; align-items: center; width: 32px; flex-shrink: 0; padding-top: 4px; }
+  .route-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .dot-green { background: #dcfce7; color: #15803d; }
+  .dot-blue  { background: #dbeafe; color: #1d4ed8; }
+  .dot-red   { background: #fee2e2; color: #b91c1c; }
+  .route-line { width: 2px; height: 18px; background: #d1d5db; margin-top: 3px; }
+
+  /* 카카오 지도 */
+  #kakaoMapDiv {
+    width: 100%; height: 300px; border-radius: 10px;
+    border: 1px solid #e5e7eb; margin-top: 12px; overflow: hidden;
+    background: #f3f4f6;
+  }
+
+  /* Result */
+  .result-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+  .result-row:last-child { border-bottom: none; }
+  .result-sub { display: flex; justify-content: space-between; padding: 4px 0 4px 20px; }
+  .total-box { background: linear-gradient(135deg, #1e40af, #1e3a8a); color: white; border-radius: 12px; padding: 20px 24px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+  .badge-blue   { background: #dbeafe; color: #1e40af; }
+  .badge-purple { background: #ede9fe; color: #6d28d9; }
+  .badge-orange { background: #fff7ed; color: #c2410c; }
+
+  .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 8px; }
+  .alert-green  { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+  .alert-red    { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+  .alert-yellow { background: #fefce8; border: 1px solid #fde68a; color: #92400e; }
+  .alert-blue   { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+
+  .transport-tab { padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .transport-tab.active   { background: #1e40af; color: white; border-color: #1e40af; }
+  .transport-tab.inactive { background: white; color: #6b7280; border-color: #e5e7eb; }
+
+  .top-bar { position: sticky; top: 0; z-index: 100; background: white; border-bottom: 1px solid #e5e7eb; }
+
+  @media print {
+    .no-print { display: none !important; }
+    body { background: white; font-size: 12px; }
+    .card { box-shadow: none; border: 1px solid #e5e7eb; margin-bottom: 12px; padding: 14px; page-break-inside: avoid; }
+    .total-box { background: #1e40af !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page-header-print { display: block !important; }
+    #kakaoMapDiv { display: none; }
+  }
+  .page-header-print { display: none; }
 </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -114,7 +125,7 @@
 <div class="top-bar no-print">
   <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center">
+      <div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center shrink-0">
         <span class="text-white text-xs font-bold">대교</span>
       </div>
       <div>
@@ -123,42 +134,41 @@
       </div>
     </div>
     <div class="flex gap-2">
-      <button onclick="window.print()" class="btn btn-gray text-xs flex items-center gap-1">🖨️ 인쇄/PDF</button>
-      <button onclick="downloadExcel()" class="btn btn-gray text-xs flex items-center gap-1">📊 엑셀</button>
+      <button onclick="window.print()" class="btn btn-gray text-xs">🖨️ 인쇄/PDF</button>
+      <button onclick="downloadExcel()" class="btn btn-gray text-xs">📊 엑셀</button>
       <button onclick="resetForm()" class="btn btn-gray text-xs">🔄 초기화</button>
     </div>
   </div>
 </div>
 
-<!-- Print Header -->
 <div class="page-header-print text-center py-4 border-b mb-4">
-  <h1 style="font-size:20px; font-weight:700; color:#1e40af;">대교홀딩스 출장비 정산서</h1>
-  <p style="font-size:12px; color:#6b7280; margin-top:4px;">여비규정 기준 (2026.01.01 개정)</p>
+  <h1 style="font-size:20px;font-weight:700;color:#1e40af;">대교홀딩스 출장비 정산서</h1>
+  <p style="font-size:12px;color:#6b7280;margin-top:4px;">여비규정 기준 (2026.01.01 개정)</p>
 </div>
 
 <div class="max-w-3xl mx-auto px-4 py-5">
 
-  <!-- ▼ API 설정 -->
-  <div class="card no-print mb-4" id="apiConfigCard">
-    <button onclick="toggleSection('apiBody', 'apiArrow')" class="w-full flex items-center justify-between">
-      <span class="font-semibold text-gray-700 text-sm flex items-center gap-2">⚙️ API 설정</span>
+  <!-- API 설정 -->
+  <div class="card no-print mb-4">
+    <button onclick="toggleSection('apiBody','apiArrow')" class="w-full flex items-center justify-between">
+      <span class="font-semibold text-gray-700 text-sm">⚙️ API 설정</span>
       <span id="apiArrow" class="text-gray-400 text-sm">▼ 펼치기</span>
     </button>
     <div id="apiBody" class="hidden mt-4">
-      <div class="grid grid-cols-2 gap-4 mb-3">
+      <div class="grid grid-cols-3 gap-4 mb-3">
         <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">카카오 REST API 키 <span class="text-red-500">*</span></label>
-          <input type="text" id="kakaoKey" value="96bcd7761d5acb1c7520c7520ce0cc3b" class="form-input font-mono text-xs">
-          <p class="text-xs text-gray-400 mt-1">거리 자동 계산에 사용 · <a href="https://developers.kakao.com" target="_blank" class="text-blue-500 hover:underline">발급 안내</a></p>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">카카오 JavaScript 키</label>
+          <input type="text" id="kakaoJsKey" value="38e0ad30ba2fbda393ecae50943972b7" class="form-input font-mono text-xs" readonly>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">오피넷 API 키 (선택)</label>
-          <input type="text" id="opinetKey" placeholder="오피넷에서 신청한 API 키" class="form-input font-mono text-xs">
-          <p class="text-xs text-gray-400 mt-1">유가 자동 조회 · <a href="https://www.opinet.co.kr" target="_blank" class="text-blue-500 hover:underline">www.opinet.co.kr</a></p>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">카카오 REST API 키</label>
+          <input type="text" id="kakaoRestKey" value="96bcd7761d5acb1c7520c7520ce0cc3b" class="form-input font-mono text-xs">
         </div>
-      </div>
-      <div class="alert alert-yellow text-xs">
-        ⚠️ <strong>카카오맵 CORS 설정:</strong> 로컬 파일로 열 경우 카카오 개발자 콘솔 → 앱 설정 → 플랫폼 → Web에서 <code>http://localhost</code> 또는 실제 배포 도메인을 등록해야 거리 계산이 작동합니다.
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">오피넷 API 키</label>
+          <input type="text" id="opinetKey" value="F260629968" class="form-input font-mono text-xs">
+          <p class="text-xs text-gray-400 mt-1"><a href="https://www.opinet.co.kr" target="_blank" class="text-blue-500 hover:underline">www.opinet.co.kr</a></p>
+        </div>
       </div>
     </div>
   </div>
@@ -216,37 +226,22 @@
         </div>
       </div>
     </div>
-    <div id="longStayNote" class="alert alert-yellow mt-3 hidden text-xs">
-      ⚠️ <strong>장기출장 감액 적용:</strong> 16일 이후부터 여비 정액의 20% 감액 (규정 제14조)
-    </div>
-    <div id="sameDayNote" class="alert alert-blue mt-3 hidden text-xs">
-      ℹ️ <strong>당일출장:</strong> 교통비 + 일비만 지급됩니다 (숙박비 없음)
-    </div>
+    <div id="longStayNote"  class="alert alert-yellow mt-3 hidden text-xs">⚠️ <strong>장기출장 감액 적용:</strong> 16일 이후부터 여비 정액의 20% 감액 (규정 제14조)</div>
+    <div id="sameDayNote"   class="alert alert-blue   mt-3 hidden text-xs">ℹ️ <strong>당일출장:</strong> 교통비 + 일비만 지급됩니다 (숙박비 없음)</div>
   </div>
 
   <!-- ③ 교통비 -->
   <div class="card">
     <div class="card-title">③ 교통비</div>
 
-    <!-- 이동 수단 선택 -->
+    <!-- 자기차량 먼저 -->
     <div class="flex gap-2 mb-5 no-print">
-      <button onclick="setTransport('public')" id="tabPublic" class="transport-tab active">🚆 대중교통</button>
-      <button onclick="setTransport('private')" id="tabPrivate" class="transport-tab inactive">🚗 자기차량</button>
-    </div>
-    <!-- Print 용 표시 -->
-    <div class="hidden" id="transportLabel" style="margin-bottom:8px;"></div>
-
-    <!-- 대중교통 -->
-    <div id="sectionPublic">
-      <div class="max-w-xs">
-        <label class="block text-xs font-semibold text-gray-600 mb-1">교통비 (원)</label>
-        <input type="number" id="publicCost" placeholder="0" min="0" oninput="calc()" class="form-input">
-        <p class="text-xs text-gray-400 mt-1">KTX·새마을호·우등고속 실비 | 긴급 시 항공 가능 (임원 이하)</p>
-      </div>
+      <button onclick="setTransport('private')" id="tabPrivate" class="transport-tab active">🚗 자기차량</button>
+      <button onclick="setTransport('public')"  id="tabPublic"  class="transport-tab inactive">🚆 대중교통</button>
     </div>
 
-    <!-- 자기차량 -->
-    <div id="sectionPrivate" class="hidden">
+    <!-- 자기차량 (기본) -->
+    <div id="sectionPrivate">
 
       <!-- 차량 유종 -->
       <div class="grid grid-cols-2 gap-3 mb-5">
@@ -270,59 +265,63 @@
       </div>
 
       <!-- 경로 입력 -->
-      <div class="mb-5">
-        <div class="flex items-center justify-between mb-2">
+      <div class="mb-3">
+        <div class="flex items-center justify-between mb-3">
           <label class="text-xs font-semibold text-gray-600">경로 입력</label>
-          <span class="text-xs text-gray-400">출발지 → 경유지(선택) → 목적지</span>
+          <span class="text-xs text-gray-400">장소명·주소·건물명 모두 검색 가능</span>
         </div>
 
-        <div id="routeBuilder">
-          <!-- 출발지 -->
-          <div class="route-row">
-            <div class="route-connector">
-              <div class="route-dot dot-green">출</div>
-              <div class="route-line"></div>
-            </div>
-            <div class="addr-wrap">
-              <div class="flex gap-2">
-                <input type="text" id="origin" placeholder="주소 검색 버튼을 클릭하세요" class="form-input flex-1"
-                  oninput="delete coordsMap['origin']; hideTag('origin');" autocomplete="off">
-                <button type="button" onclick="openPostcode('origin')" class="btn-search no-print">🔍 주소 검색</button>
-              </div>
-              <div id="origin_tag" class="addr-selected-tag hidden">📍 <span id="origin_tag_text"></span></div>
-            </div>
+        <!-- 출발지 -->
+        <div class="route-row">
+          <div class="route-connector">
+            <div class="route-dot dot-green">출</div>
+            <div class="route-line"></div>
           </div>
-
-          <!-- 경유지 컨테이너 -->
-          <div id="waypointContainer"></div>
-
-          <!-- 목적지 -->
-          <div class="route-row">
-            <div class="route-connector">
-              <div class="route-dot dot-red">착</div>
-            </div>
-            <div class="addr-wrap">
-              <div class="flex gap-2">
-                <input type="text" id="destination" placeholder="주소 검색 버튼을 클릭하세요" class="form-input flex-1"
-                  oninput="delete coordsMap['destination']; hideTag('destination');" autocomplete="off">
-                <button type="button" onclick="openPostcode('destination')" class="btn-search no-print">🔍 주소 검색</button>
+          <div class="addr-wrap">
+            <div class="flex gap-2">
+              <div class="addr-relative flex-1">
+                <input type="text" id="origin" placeholder="강남역, 서울시청, 판교역…" class="form-input"
+                  oninput="addrInput('origin')" autocomplete="off">
+                <ul id="origin_dd" class="addr-dropdown hidden"></ul>
               </div>
-              <div id="destination_tag" class="addr-selected-tag hidden">📍 <span id="destination_tag_text"></span></div>
+              <button type="button" onclick="openPostcode('origin')" class="btn-search no-print">📮 주소</button>
             </div>
+            <div id="origin_tag" class="addr-tag hidden">📍 <span id="origin_tag_text"></span></div>
+          </div>
+        </div>
+
+        <!-- 경유지 컨테이너 -->
+        <div id="waypointContainer"></div>
+
+        <!-- 목적지 -->
+        <div class="route-row">
+          <div class="route-connector">
+            <div class="route-dot dot-red">착</div>
+          </div>
+          <div class="addr-wrap">
+            <div class="flex gap-2">
+              <div class="addr-relative flex-1">
+                <input type="text" id="destination" placeholder="목적지 검색" class="form-input"
+                  oninput="addrInput('destination')" autocomplete="off">
+                <ul id="destination_dd" class="addr-dropdown hidden"></ul>
+              </div>
+              <button type="button" onclick="openPostcode('destination')" class="btn-search no-print">📮 주소</button>
+            </div>
+            <div id="destination_tag" class="addr-tag hidden">📍 <span id="destination_tag_text"></span></div>
           </div>
         </div>
 
         <div class="flex gap-2 mt-3 no-print">
-          <button onclick="addWaypoint()" id="btnAddWaypoint" class="btn btn-gray text-xs flex items-center gap-1">+ 경유지 추가</button>
-          <button onclick="calculateDistance()" class="btn btn-blue flex-1 flex items-center justify-center gap-2">
-            🗺️ 카카오맵으로 거리 자동 계산
-          </button>
+          <button onclick="addWaypoint()" id="btnAddWaypoint" class="btn btn-gray text-xs">+ 경유지 추가</button>
+          <button onclick="calcDistance()" class="btn btn-blue flex-1">🗺️ 거리 및 경로 계산</button>
         </div>
-
         <div id="distanceMsg" class="hidden alert mt-3 text-xs"></div>
+
+        <!-- 카카오 지도 -->
+        <div id="kakaoMapDiv" class="no-print"></div>
       </div>
 
-      <!-- 유류비 계산 입력 -->
+      <!-- 유류비 입력 -->
       <div class="grid grid-cols-3 gap-3 mb-4">
         <div>
           <label class="block text-xs font-semibold text-gray-600 mb-1">운행거리 (km)</label>
@@ -331,10 +330,10 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-600 mb-1">
-            유가 <span id="fuelPriceUnit" class="text-gray-400 font-normal">(원/L)</span>
+            유가 <span id="fuelPriceUnit" class="font-normal text-gray-400">(원/L)</span>
           </label>
           <div class="flex gap-1">
-            <input type="number" id="fuelPrice" placeholder="0" min="0" step="1" oninput="calc()" class="form-input flex-1">
+            <input type="number" id="fuelPrice" placeholder="0" min="0" oninput="calc()" class="form-input flex-1">
             <button onclick="fetchOpinetPrice()" class="btn-orange btn flex-shrink-0 no-print">오피넷</button>
           </div>
           <p class="text-xs text-gray-400 mt-1" id="opinetDateLabel"></p>
@@ -346,26 +345,34 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-3 mb-4">
+      <div class="grid grid-cols-3 gap-3 mb-2">
         <div>
           <label class="block text-xs font-semibold text-gray-600 mb-1">주차비 (원)</label>
           <input type="number" id="parkingCost" placeholder="0" min="0" oninput="calc()" class="form-input">
           <p class="text-xs text-gray-400 mt-1">전액 실비 정산</p>
         </div>
         <div class="col-span-2">
-          <!-- 유류비 계산 미리보기 -->
           <label class="block text-xs font-semibold text-gray-600 mb-1">유류비 계산 내역</label>
-          <div id="fuelPreview" class="h-[39px] flex items-center px-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-900 font-mono">
+          <div class="h-[39px] flex items-center px-3 bg-blue-50 border border-blue-200 rounded-lg text-xs font-mono text-blue-900">
             <span id="fuelPreviewText" class="text-gray-400">거리·유가·연비를 입력하면 자동 계산됩니다</span>
           </div>
           <p class="text-xs text-gray-400 mt-1">공식: 거리 × 유가 ÷ 연비 × 1.5 (감가상각 포함)</p>
         </div>
       </div>
     </div>
+
+    <!-- 대중교통 -->
+    <div id="sectionPublic" class="hidden">
+      <div class="max-w-xs">
+        <label class="block text-xs font-semibold text-gray-600 mb-1">교통비 (원)</label>
+        <input type="number" id="publicCost" placeholder="0" min="0" oninput="calc()" class="form-input">
+        <p class="text-xs text-gray-400 mt-1">KTX·새마을호·우등고속 실비 | 긴급 시 항공 가능</p>
+      </div>
+    </div>
   </div>
 
   <!-- ④ 숙박비 -->
-  <div class="card" id="accommodationCard">
+  <div class="card">
     <div class="card-title">④ 숙박비</div>
     <div class="grid grid-cols-3 gap-3 items-start">
       <div>
@@ -386,7 +393,7 @@
       </div>
     </div>
     <div id="accommodationWarn" class="alert alert-red mt-3 text-xs hidden">
-      ⚠️ 1박당 숙박비가 상한선을 초과합니다. 상한선 금액 기준으로 정산됩니다.
+      ⚠️ 1박당 숙박비가 상한선을 초과합니다. 상한선 금액으로 정산됩니다.
     </div>
   </div>
 
@@ -394,7 +401,6 @@
   <div class="card">
     <div class="card-title">⑤ 정산 결과</div>
 
-    <!-- 교통비 -->
     <div class="result-row">
       <span class="text-sm font-medium text-gray-700">교통비</span>
       <span class="font-semibold text-gray-900" id="r_transport">0원</span>
@@ -412,17 +418,14 @@
       <span class="text-xs font-medium text-gray-700" id="r_parking">0원</span>
     </div>
 
-    <!-- 숙박비 -->
     <div class="result-row">
       <span class="text-sm font-medium text-gray-700">숙박비</span>
       <span class="font-semibold text-gray-900" id="r_accommodation">0원</span>
     </div>
     <div class="result-sub" id="r_accom_detail_row" style="display:none">
       <span class="text-xs text-gray-500" id="r_accom_detail"></span>
-      <span class="text-xs font-medium text-gray-700"></span>
     </div>
 
-    <!-- 일비 -->
     <div class="result-row">
       <div class="flex items-center gap-2">
         <span class="text-sm font-medium text-gray-700">일비</span>
@@ -431,217 +434,470 @@
       <span class="font-semibold text-gray-900" id="r_daily">0원</span>
     </div>
 
-    <!-- 총합계 -->
     <div class="total-box">
       <div>
         <div class="text-blue-200 text-sm font-medium mb-1">총 정산 금액</div>
-        <div class="text-xs text-blue-300" id="r_total_breakdown"></div>
+        <div class="text-xs text-blue-300" id="r_breakdown"></div>
       </div>
       <div class="text-3xl font-bold" id="r_total">0원</div>
     </div>
 
-    <!-- 장기출장 감액 안내 -->
     <div id="longStayResult" class="alert alert-yellow mt-3 text-xs hidden">
-      ⚠️ 장기출장 감액 안내: 16일 이후분 숙박비·일비는 20% 감액된 금액입니다.
+      ⚠️ 장기출장: 16일 이후분 일비·숙박비는 20% 감액된 금액입니다.
     </div>
   </div>
 
   <!-- 비고 -->
   <div class="card">
     <div class="card-title">비고 / 특이사항</div>
-    <textarea id="notes" rows="3" placeholder="특이사항, 회의식대 승인 여부 등을 입력하세요" class="form-input" style="resize: vertical; height: auto;"></textarea>
+    <textarea id="notes" rows="3" placeholder="특이사항, 회의식대 승인 여부 등" class="form-input" style="resize:vertical;height:auto;"></textarea>
   </div>
 
-  <!-- Bottom padding -->
   <div class="h-10"></div>
 </div>
 
 <script>
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 
+const KAKAO_REST_KEY = () => document.getElementById('kakaoRestKey').value.trim() || '96bcd7761d5acb1c7520c7520ce0cc3b';
+
 const FUEL_TYPES = {
-  gasoline: { label: '휘발유', efficiency: 11.97, unit: 'L', priceUnit: '원/L', opinetCode: 'B027' },
-  diesel:   { label: '경유',   efficiency: 12.52, unit: 'L', priceUnit: '원/L', opinetCode: 'D047' },
-  lpg:      { label: 'LPG',    efficiency: 8.83,  unit: 'L', priceUnit: '원/L', opinetCode: 'C004' },
-  hybrid:   { label: '하이브리드', efficiency: 15.37, unit: 'L', priceUnit: '원/L', opinetCode: 'B027' },
-  plugin:   { label: '플러그인 하이브리드', efficiency: 10.61, unit: 'L', priceUnit: '원/L', opinetCode: 'B027' },
-  electric: { label: '전기',   efficiency: 5.22,  unit: 'kWh', priceUnit: '원/kWh', opinetCode: null },
-  hydrogen: { label: '수소',   efficiency: 94.9,  unit: 'kg',  priceUnit: '원/kg',  opinetCode: null },
+  gasoline: { label:'휘발유',            efficiency:11.97, priceUnit:'원/L',   opinetCode:'B027' },
+  diesel:   { label:'경유',              efficiency:12.52, priceUnit:'원/L',   opinetCode:'D047' },
+  lpg:      { label:'LPG',              efficiency:8.83,  priceUnit:'원/L',   opinetCode:'C004' },
+  hybrid:   { label:'하이브리드',        efficiency:15.37, priceUnit:'원/L',   opinetCode:'B027' },
+  plugin:   { label:'플러그인 하이브리드', efficiency:10.61, priceUnit:'원/L',   opinetCode:'B027' },
+  electric: { label:'전기',              efficiency:5.22,  priceUnit:'원/kWh', opinetCode:null   },
+  hydrogen: { label:'수소',              efficiency:94.9,  priceUnit:'원/kg',  opinetCode:null   },
 };
 
-const DAILY_ALLOWANCE = { chairman: 200000, ceo: 100000, executive: 80000, staff: 50000 };
-const ACCOM_LIMIT     = { chairman: Infinity, ceo: Infinity, executive: Infinity, staff: 100000 };
-const GRADE_LABEL     = { chairman: '회장', ceo: '대표/COO', executive: '임원', staff: '직원' };
+const DAILY_ALLOWANCE = { chairman:200000, ceo:100000, executive:80000, staff:50000 };
+const ACCOM_LIMIT     = { chairman:Infinity, ceo:Infinity, executive:Infinity, staff:100000 };
+const GRADE_LABEL     = { chairman:'회장', ceo:'대표/COO', executive:'임원', staff:'직원' };
 
 // ─── 상태 ────────────────────────────────────────────────────────────────────
 
-let transportMode = 'public';   // 'public' | 'private'
+let transportMode = 'private';   // 자기차량 기본
 let waypointCount = 0;
+const coordsMap   = {};          // { inputId: { lon, lat } }
+const debounceMap = {};
 
-// 주소 좌표 캐시 { inputId: { x, y } }
-const coordsMap = {};
+// 카카오 맵 객체
+let kakaoMap      = null;
+let kakaoPS       = null;   // Places service
+let kakaoGC       = null;   // Geocoder service
+const mapMarkers  = [];
+let routePolyline = null;
+
+// ─── 카카오 SDK 초기화 ────────────────────────────────────────────────────────
+
+kakao.maps.load(function() {
+  kakaoPS = new kakao.maps.services.Places();
+  kakaoGC = new kakao.maps.services.Geocoder();
+
+  const container = document.getElementById('kakaoMapDiv');
+  kakaoMap = new kakao.maps.Map(container, {
+    center: new kakao.maps.LatLng(36.5, 127.5),
+    level: 13
+  });
+});
 
 // ─── 초기화 ──────────────────────────────────────────────────────────────────
 
 window.addEventListener('DOMContentLoaded', () => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0,10);
   document.getElementById('departDate').value = today;
   document.getElementById('returnDate').value = today;
   updateDays();
   onFuelTypeChange();
+  onGradeChange();
   calc();
 
-  // (드롭다운 제거됨 — Daum Postcode 팝업 방식 사용)
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.addr-relative')) hideAllDropdowns();
+  });
 });
 
-// ─── 카카오 우편번호 주소 검색 ────────────────────────────────────────────────
+// ─── UI 유틸 ─────────────────────────────────────────────────────────────────
 
-function openPostcode(inputId) {
-  new daum.Postcode({
-    width: '100%',
-    height: '100%',
-    oncomplete: async function(data) {
-      // 도로명 우선, 없으면 지번 주소 사용
-      const addr = data.userSelectedType === 'R'
-        ? data.roadAddress
-        : data.jibunAddress;
+function toggleSection(bodyId, arrowId) {
+  const body  = document.getElementById(bodyId);
+  const arrow = document.getElementById(arrowId);
+  const hidden = body.classList.toggle('hidden');
+  arrow.textContent = hidden ? '▼ 펼치기' : '▲ 접기';
+}
 
-      const input = document.getElementById(inputId);
-      if (input) input.value = addr;
-      showTag(inputId, addr);
+function setTransport(mode) {
+  transportMode = mode;
+  document.getElementById('sectionPublic').classList.toggle('hidden',  mode !== 'public');
+  document.getElementById('sectionPrivate').classList.toggle('hidden', mode !== 'private');
+  document.getElementById('tabPublic').className  = `transport-tab ${mode==='public'  ? 'active':'inactive'}`;
+  document.getElementById('tabPrivate').className = `transport-tab ${mode==='private' ? 'active':'inactive'}`;
+  calc();
+}
 
-      // 좌표 미리 조회 (거리 계산 시 재조회 생략)
-      const kakaoKey = document.getElementById('kakaoKey').value.trim();
-      if (kakaoKey) {
-        try {
-          const res = await kakaoFetch(
-            `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(addr)}`,
-            kakaoKey
-          );
-          if (res.documents?.length) {
-            coordsMap[inputId] = { x: res.documents[0].x, y: res.documents[0].y };
-          }
-        } catch { /* 좌표 조회 실패 시 거리 계산 시점에 재시도 */ }
-      }
+function onFuelTypeChange() {
+  const ft = FUEL_TYPES[document.getElementById('fuelType').value];
+  document.getElementById('fuelEfficiency').value     = ft.efficiency;
+  document.getElementById('fuelPriceUnit').textContent = `(${ft.priceUnit})`;
+  calc();
+}
+
+function onGradeChange() {
+  const g   = document.getElementById('empGrade').value;
+  const lim = ACCOM_LIMIT[g];
+  document.getElementById('accommodationLimitLabel').textContent =
+    lim === Infinity ? '상한 없음 (실비)' : `${GRADE_LABEL[g]}: ${fmt(lim)}원/박`;
+  calc();
+}
+
+// ─── 출장 기간 ───────────────────────────────────────────────────────────────
+
+function updateDays() {
+  const d1 = document.getElementById('departDate').value;
+  const d2 = document.getElementById('returnDate').value;
+  if (!d1 || !d2) return;
+  const diff = Math.round((new Date(d2) - new Date(d1)) / 86400000);
+  if (diff < 0) {
+    document.getElementById('departDate').value = d2;
+    document.getElementById('returnDate').value = d1;
+    updateDays(); return;
+  }
+  const totalDays = diff + 1, nights = Math.max(0, diff);
+  document.getElementById('tripDaysLabel').textContent   = `${totalDays}일`;
+  document.getElementById('stayNightsLabel').textContent = `${nights}박`;
+  document.getElementById('stayDays').value = nights;
+  document.getElementById('longStayNote').classList.toggle('hidden',  totalDays <= 15);
+  document.getElementById('longStayResult').classList.toggle('hidden', totalDays <= 15);
+  document.getElementById('sameDayNote').classList.toggle('hidden',   nights > 0);
+  calc();
+}
+
+// ─── 카카오 주소 검색 (장소명 + 주소 모두 지원) ───────────────────────────────
+
+function addrInput(inputId) {
+  delete coordsMap[inputId];
+  hideTag(inputId);
+  const q = document.getElementById(inputId).value.trim();
+  if (q.length < 2) { hideDropdown(inputId); return; }
+  clearTimeout(debounceMap[inputId]);
+  debounceMap[inputId] = setTimeout(() => kakaoSearch(inputId, q), 350);
+}
+
+function kakaoSearch(inputId, query) {
+  if (!kakaoPS || !kakaoGC) {
+    showDropdownStatus(inputId, '지도 서비스 초기화 중입니다…');
+    return;
+  }
+  showDropdownStatus(inputId, '🔍 검색 중…');
+
+  // 1단계: 카카오 키워드 검색 (장소명·건물명 포함)
+  kakaoPS.keywordSearch(query, (data, status) => {
+    if (status === kakao.maps.services.Status.OK && data.length) {
+      const items = data.slice(0, 7).map(p => ({
+        name: p.place_name,
+        sub:  p.road_address_name || p.address_name,
+        cat:  p.category_group_name || '',
+        lon:  parseFloat(p.x),
+        lat:  parseFloat(p.y),
+      }));
+      renderDropdown(inputId, items);
+    } else {
+      // 2단계: 주소 검색 폴백
+      kakaoGC.addressSearch(query, (result, status2) => {
+        if (status2 === kakao.maps.services.Status.OK && result.length) {
+          const items = result.slice(0, 7).map(r => ({
+            name: r.address_name,
+            sub:  r.road_address?.address_name || '',
+            cat:  '주소',
+            lon:  parseFloat(r.x),
+            lat:  parseFloat(r.y),
+          }));
+          renderDropdown(inputId, items);
+        } else {
+          showDropdownStatus(inputId, '검색 결과 없음. 📮 주소 버튼을 이용해 보세요.');
+        }
+      });
     }
-  }).open();
+  });
 }
 
-// 카카오 REST API 호출 (직접 시도 → CORS 프록시 폴백)
-async function kakaoFetch(url, kakaoKey) {
-  const headers = { Authorization: `KakaoAK ${kakaoKey}` };
-
-  // 1차: 직접 요청 (localhost/서버 환경)
-  try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 3000);
-    const res = await fetch(url, { headers, signal: ctrl.signal });
-    clearTimeout(timer);
-    if (res.ok) return res.json();
-  } catch { /* CORS 또는 네트워크 오류 → 프록시 시도 */ }
-
-  // 2차: CORS 프록시 (file:// 환경)
-  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-  const res = await fetch(proxyUrl, { headers });
-  if (!res.ok) throw new Error(`API 오류 (${res.status})`);
-  return res.json();
+function renderDropdown(inputId, items) {
+  const dd = document.getElementById(`${inputId}_dd`);
+  if (!dd) return;
+  dd.innerHTML = items.map(item => `
+    <li class="addr-item"
+      onmousedown="selectAddr('${inputId}', ${JSON.stringify(item).replace(/"/g,'&quot;')})">
+      <span class="addr-name">${esc(item.name)}</span>
+      <span class="addr-sub">${esc(item.sub)}</span>
+      ${item.cat ? `<span class="addr-cat">${esc(item.cat)}</span>` : ''}
+    </li>`).join('');
+  dd.classList.remove('hidden');
 }
 
+function selectAddr(inputId, item) {
+  document.getElementById(inputId).value = item.name;
+  coordsMap[inputId] = { lon: item.lon, lat: item.lat };
+  hideDropdown(inputId);
+  showTag(inputId, item.name);
+  updateMapMarker(inputId, item.lon, item.lat, item.name);
+}
+
+function showDropdownStatus(inputId, msg) {
+  const dd = document.getElementById(`${inputId}_dd`);
+  if (!dd) return;
+  dd.innerHTML = `<li class="addr-status">${esc(msg)}</li>`;
+  dd.classList.remove('hidden');
+}
+function hideDropdown(inputId)  { document.getElementById(`${inputId}_dd`)?.classList.add('hidden'); }
+function hideAllDropdowns()     { document.querySelectorAll('.addr-dropdown').forEach(d => d.classList.add('hidden')); }
 function showTag(inputId, name) {
   const tag = document.getElementById(`${inputId}_tag`);
   const txt = document.getElementById(`${inputId}_tag_text`);
   if (tag && txt) { txt.textContent = name; tag.classList.remove('hidden'); }
 }
+function hideTag(inputId) { document.getElementById(`${inputId}_tag`)?.classList.add('hidden'); }
 
-function hideTag(inputId) {
-  const tag = document.getElementById(`${inputId}_tag`);
-  if (tag) tag.classList.add('hidden');
+// ─── 다음 우편번호 팝업 ───────────────────────────────────────────────────────
+
+function openPostcode(inputId) {
+  new daum.Postcode({
+    oncomplete: function(data) {
+      const addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+      document.getElementById(inputId).value = addr;
+      delete coordsMap[inputId];
+      hideDropdown(inputId);
+      showTag(inputId, addr);
+      // 우편번호 선택 후 좌표 조회해서 지도에 마커 표시
+      if (kakaoGC) {
+        kakaoGC.addressSearch(addr, (result, status) => {
+          if (status === kakao.maps.services.Status.OK) {
+            const lon = parseFloat(result[0].x), lat = parseFloat(result[0].y);
+            coordsMap[inputId] = { lon, lat };
+            updateMapMarker(inputId, lon, lat, addr);
+          }
+        });
+      }
+    }
+  }).open();
 }
 
-function hideAllDropdowns() { /* 드롭다운 없음, 호환성 유지 */ }
+// ─── 지도 마커 관리 ──────────────────────────────────────────────────────────
 
-// ─── 섹션 토글 ───────────────────────────────────────────────────────────────
+const markerInstances = {}; // { inputId: kakao.maps.Marker }
 
-function toggleSection(bodyId, arrowId) {
-  const body = document.getElementById(bodyId);
-  const arrow = document.getElementById(arrowId);
-  const isHidden = body.classList.toggle('hidden');
-  arrow.textContent = isHidden ? '▼ 펼치기' : '▲ 접기';
-}
+function updateMapMarker(inputId, lon, lat, title) {
+  if (!kakaoMap) return;
 
-// ─── 이동 수단 ────────────────────────────────────────────────────────────────
-
-function setTransport(mode) {
-  transportMode = mode;
-  document.getElementById('sectionPublic').classList.toggle('hidden', mode !== 'public');
-  document.getElementById('sectionPrivate').classList.toggle('hidden', mode !== 'private');
-  document.getElementById('tabPublic').className = `transport-tab ${mode === 'public' ? 'active' : 'inactive'}`;
-  document.getElementById('tabPrivate').className = `transport-tab ${mode === 'private' ? 'active' : 'inactive'}`;
-  document.getElementById('transportLabel').textContent = mode === 'public' ? '이동수단: 대중교통' : '이동수단: 자기차량';
-  calc();
-}
-
-// ─── 유종 변경 ────────────────────────────────────────────────────────────────
-
-function onFuelTypeChange() {
-  const ft = FUEL_TYPES[document.getElementById('fuelType').value];
-  document.getElementById('fuelEfficiency').value = ft.efficiency;
-  document.getElementById('fuelPriceUnit').textContent = `(${ft.priceUnit})`;
-  calc();
-}
-
-// ─── 직급 변경 ────────────────────────────────────────────────────────────────
-
-function onGradeChange() {
-  const grade = document.getElementById('empGrade').value;
-  const limit = ACCOM_LIMIT[grade];
-  const limitText = limit === Infinity ? '상한 없음 (실비)' : `${GRADE_LABEL[grade]}: ${fmt(limit)}원/박`;
-  document.getElementById('accommodationLimitLabel').textContent = limitText;
-  calc();
-}
-
-// ─── 출장 기간 계산 ───────────────────────────────────────────────────────────
-
-function updateDays() {
-  const d1 = document.getElementById('departDate').value;
-  const d2 = document.getElementById('returnDate').value;
-
-  if (!d1 || !d2) return;
-
-  const depart = new Date(d1);
-  const returnD = new Date(d2);
-  const diff = Math.round((returnD - depart) / 86400000);
-
-  if (diff < 0) {
-    document.getElementById('departDate').value = d2;
-    document.getElementById('returnDate').value = d1;
-    updateDays();
-    return;
+  // 기존 마커 제거
+  if (markerInstances[inputId]) {
+    markerInstances[inputId].setMap(null);
   }
 
-  const totalDays = diff + 1;
-  const nights = Math.max(0, diff);
+  // 마커 색상: 출발=초록, 목적지=빨강, 경유=파랑
+  const isOrigin = inputId === 'origin';
+  const isDest   = inputId === 'destination';
 
-  document.getElementById('tripDaysLabel').textContent = `${totalDays}일`;
-  document.getElementById('stayNightsLabel').textContent = `${nights}박`;
-  document.getElementById('stayDays').value = nights;
+  const marker = new kakao.maps.Marker({
+    position: new kakao.maps.LatLng(lat, lon),
+    title: title,
+  });
+  marker.setMap(kakaoMap);
+  markerInstances[inputId] = marker;
 
-  document.getElementById('longStayNote').classList.toggle('hidden', totalDays <= 15);
-  document.getElementById('longStayResult').classList.toggle('hidden', totalDays <= 15);
-  document.getElementById('sameDayNote').classList.toggle('hidden', nights > 0);
+  // 인포윈도우 (장소명 표시)
+  const iw = new kakao.maps.InfoWindow({
+    content: `<div style="padding:4px 8px;font-size:12px;font-weight:600;white-space:nowrap;">${esc(title)}</div>`,
+    removable: true
+  });
+  kakao.maps.event.addListener(marker, 'click', () => iw.open(kakaoMap, marker));
 
-  calc();
+  // 지도 중심 이동
+  kakaoMap.setCenter(new kakao.maps.LatLng(lat, lon));
+  if (kakaoMap.getLevel() > 7) kakaoMap.setLevel(7);
 }
 
-// ─── 경유지 관리 ──────────────────────────────────────────────────────────────
+// ─── 거리 계산 (카카오 모빌리티 Directions API) ───────────────────────────────
+
+async function resolveCoord(inputId, text) {
+  if (coordsMap[inputId]) return coordsMap[inputId];
+  if (!kakaoPS || !kakaoGC) throw new Error('카카오 서비스가 초기화되지 않았습니다.');
+
+  // 카카오 키워드 검색
+  const byKeyword = await new Promise(res => {
+    kakaoPS.keywordSearch(text, (data, status) => {
+      if (status === kakao.maps.services.Status.OK && data.length) {
+        res({ lon: parseFloat(data[0].x), lat: parseFloat(data[0].y) });
+      } else {
+        res(null);
+      }
+    });
+  });
+  if (byKeyword) { coordsMap[inputId] = byKeyword; return byKeyword; }
+
+  // 주소 검색 폴백
+  const byAddr = await new Promise(res => {
+    kakaoGC.addressSearch(text, (result, status) => {
+      if (status === kakao.maps.services.Status.OK && result.length) {
+        res({ lon: parseFloat(result[0].x), lat: parseFloat(result[0].y) });
+      } else {
+        res(null);
+      }
+    });
+  });
+  if (byAddr) { coordsMap[inputId] = byAddr; return byAddr; }
+
+  throw new Error(`"${text}" 위치를 찾을 수 없습니다. 검색 목록에서 선택하거나 더 구체적인 주소를 입력해 주세요.`);
+}
+
+async function calcDistance() {
+  const originVal = document.getElementById('origin').value.trim();
+  const destVal   = document.getElementById('destination').value.trim();
+  if (!originVal) { showDistMsg('error', '출발지를 입력해주세요.'); return; }
+  if (!destVal)   { showDistMsg('error', '목적지를 입력해주세요.'); return; }
+
+  showDistMsg('loading', '⏳ 위치 조회 및 경로 계산 중…');
+
+  try {
+    const origin = await resolveCoord('origin', originVal);
+    const dest   = await resolveCoord('destination', destVal);
+
+    const wps = [];
+    for (let i = 1; i <= waypointCount; i++) {
+      const el = document.getElementById(`wp_${i}`);
+      if (el?.value.trim()) {
+        const c = await resolveCoord(`wp_${i}`, el.value.trim());
+        wps.push({ ...c, name: el.value.trim() });
+      }
+    }
+
+    // 카카오 Directions API 호출
+    const restKey = KAKAO_REST_KEY();
+    const wpStr   = wps.map(w => `${w.lon},${w.lat}`).join('|');
+    let   apiUrl  = `https://apis-navi.kakaomobility.com/v1/directions`
+                  + `?origin=${origin.lon},${origin.lat}`
+                  + `&destination=${dest.lon},${dest.lat}`
+                  + `&summary=false`;
+    if (wpStr) apiUrl += `&waypoints=${encodeURIComponent(wpStr)}`;
+
+    let routeData = null;
+    const headers = { 'Authorization': `KakaoAK ${restKey}`, 'Content-Type': 'application/json' };
+
+    // 직접 호출 시도 (CORS 통과 시)
+    try {
+      const res = await Promise.race([
+        fetch(apiUrl, { headers }),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
+      ]);
+      if (res.ok) routeData = await res.json();
+    } catch { /* CORS 또는 타임아웃 */ }
+
+    // 직접 호출 실패 시 corsproxy 사용
+    if (!routeData) {
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
+      const res = await fetch(proxyUrl, { headers });
+      routeData = await res.json();
+    }
+
+    if (!routeData?.routes?.length) throw new Error('경로 데이터를 받지 못했습니다.');
+    const route = routeData.routes[0];
+
+    if (route.result_code !== 0) {
+      throw new Error(`카카오 경로 오류 (${route.result_code}): ${route.result_msg || '알 수 없는 오류'}`);
+    }
+
+    const distKm = (route.summary.distance / 1000).toFixed(1);
+    const durMin = Math.round(route.summary.duration / 60000);
+    const wpText = wps.length ? ` · 경유지 ${wps.length}개 포함` : '';
+
+    document.getElementById('distance').value = distKm;
+    showDistMsg('success', `✅ 경로 계산 완료 — <strong>${distKm} km</strong>${wpText} | 예상 소요 ${durMin}분`);
+
+    // 지도에 경로 표시
+    const allPts = [origin, ...wps, dest];
+    drawRouteOnMap(route, allPts, [originVal, ...wps.map(w=>w.name), destVal]);
+
+    calc();
+  } catch(err) {
+    showDistMsg('error', `❌ ${err.message}`);
+  }
+}
+
+// ─── 지도에 경로 그리기 ───────────────────────────────────────────────────────
+
+function drawRouteOnMap(route, allCoords, names) {
+  if (!kakaoMap) return;
+
+  // 기존 경로 제거
+  if (routePolyline) routePolyline.setMap(null);
+  routePolyline = null;
+  Object.values(markerInstances).forEach(m => m.setMap(null));
+  for (const k in markerInstances) delete markerInstances[k];
+
+  // 경로 폴리라인 그리기 (sections → roads → vertexes)
+  const path = [];
+  if (route.sections) {
+    route.sections.forEach(section => {
+      (section.roads || []).forEach(road => {
+        const v = road.vertexes || [];
+        for (let i = 0; i < v.length - 1; i += 2) {
+          path.push(new kakao.maps.LatLng(v[i + 1], v[i]));
+        }
+      });
+    });
+  }
+
+  if (path.length > 1) {
+    routePolyline = new kakao.maps.Polyline({
+      path,
+      strokeWeight: 6,
+      strokeColor: '#1e40af',
+      strokeOpacity: 0.85,
+      strokeStyle: 'solid',
+    });
+    routePolyline.setMap(kakaoMap);
+  }
+
+  // 마커 표시 (출발=초록, 목적지=빨강, 경유=파랑)
+  const bounds = new kakao.maps.LatLngBounds();
+  allCoords.forEach((coord, i) => {
+    const latlng = new kakao.maps.LatLng(coord.lat, coord.lon);
+    bounds.extend(latlng);
+
+    const isFirst = i === 0, isLast = i === allCoords.length - 1;
+    const label   = isFirst ? '출' : isLast ? '착' : `경${i}`;
+
+    const marker = new kakao.maps.Marker({ position: latlng, title: names[i] || '' });
+    marker.setMap(kakaoMap);
+    const inputId = isFirst ? 'origin' : isLast ? 'destination' : `wp_${i}`;
+    markerInstances[inputId] = marker;
+
+    // 인포윈도우
+    const iw = new kakao.maps.InfoWindow({
+      content: `<div style="padding:5px 10px;font-size:12px;font-weight:600;">[${label}] ${esc(names[i] || '')}</div>`,
+      removable: true
+    });
+    kakao.maps.event.addListener(marker, 'click', () => iw.open(kakaoMap, marker));
+  });
+
+  // 경로에 맞게 지도 범위 조정
+  kakaoMap.setBounds(bounds, 60);
+}
+
+function showDistMsg(type, html) {
+  const el = document.getElementById('distanceMsg');
+  el.classList.remove('hidden','alert-green','alert-red','alert-blue');
+  el.classList.add(type === 'success' ? 'alert-green' : type === 'error' ? 'alert-red' : 'alert-blue');
+  el.innerHTML = html;
+}
+
+// ─── 경유지 ──────────────────────────────────────────────────────────────────
 
 function addWaypoint() {
   if (waypointCount >= 3) { alert('경유지는 최대 3개까지 추가할 수 있습니다.'); return; }
   waypointCount++;
-  const n = waypointCount;
-  const wpId = `wp_${n}`;
+  const n = waypointCount, wpId = `wp_${n}`;
 
-  const container = document.getElementById('waypointContainer');
   const div = document.createElement('div');
   div.id = `wp_wrap_${n}`;
   div.className = 'route-row';
@@ -652,184 +908,71 @@ function addWaypoint() {
     </div>
     <div class="addr-wrap">
       <div class="flex gap-2">
-        <input type="text" id="${wpId}" placeholder="경유지 ${n} 주소 검색"
-          class="form-input flex-1" autocomplete="off"
-          oninput="delete coordsMap['${wpId}']; hideTag('${wpId}');">
-        <button type="button" onclick="openPostcode('${wpId}')" class="btn-search no-print">🔍 주소 검색</button>
+        <div class="addr-relative flex-1">
+          <input type="text" id="${wpId}" placeholder="경유지 ${n} 검색" class="form-input"
+            oninput="addrInput('${wpId}')" autocomplete="off">
+          <ul id="${wpId}_dd" class="addr-dropdown hidden"></ul>
+        </div>
+        <button type="button" onclick="openPostcode('${wpId}')" class="btn-search no-print">📮 주소</button>
       </div>
-      <div id="${wpId}_tag" class="addr-selected-tag hidden">📍 <span id="${wpId}_tag_text"></span></div>
+      <div id="${wpId}_tag" class="addr-tag hidden">📍 <span id="${wpId}_tag_text"></span></div>
     </div>
-    <button onclick="removeWaypoint(${n})" class="no-print ml-2 w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex-shrink-0 flex items-center justify-center text-sm font-bold">✕</button>
-  `;
-  container.appendChild(div);
+    <button onclick="removeWaypoint(${n})"
+      class="no-print ml-1 mt-1 w-7 h-7 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex-shrink-0 flex items-center justify-center text-sm font-bold">✕</button>`;
+  document.getElementById('waypointContainer').appendChild(div);
   document.getElementById('btnAddWaypoint').style.display = waypointCount >= 3 ? 'none' : '';
 }
 
 function removeWaypoint(n) {
+  if (markerInstances[`wp_${n}`]) { markerInstances[`wp_${n}`].setMap(null); delete markerInstances[`wp_${n}`]; }
   delete coordsMap[`wp_${n}`];
-  const el = document.getElementById(`wp_wrap_${n}`);
-  if (el) el.remove();
-
-  const remaining = document.querySelectorAll('#waypointContainer .route-row');
-  waypointCount = remaining.length;
-  remaining.forEach((row, i) => {
-    const oldNum = parseInt(row.id.replace('wp_wrap_', ''));
+  document.getElementById(`wp_wrap_${n}`)?.remove();
+  const rows = document.querySelectorAll('#waypointContainer .route-row');
+  waypointCount = rows.length;
+  rows.forEach((row, i) => {
     const num = i + 1;
-    const oldId = `wp_${oldNum}`;
+    const oldId = `wp_${parseInt(row.id.replace('wp_wrap_',''))}`;
     const newId = `wp_${num}`;
-
     row.id = `wp_wrap_${num}`;
     row.querySelector('.route-dot').textContent = `경${num}`;
-
-    const input = row.querySelector('input');
-    if (coordsMap[oldId]) { coordsMap[newId] = coordsMap[oldId]; delete coordsMap[oldId]; }
-    input.id = newId;
-    input.placeholder = `경유지 ${num} 주소 검색`;
-    input.oninput = () => { delete coordsMap[newId]; hideTag(newId); };
-
-    const searchBtn = row.querySelectorAll('button')[0];
-    searchBtn.onclick = () => openPostcode(newId);
-
-    const tag = row.querySelector('.addr-selected-tag');
-    if (tag) tag.id = `${newId}_tag`;
-    const tagText = tag?.querySelector('span');
-    if (tagText) tagText.id = `${newId}_tag_text`;
-
-    const removeBtn = row.querySelectorAll('button')[1];
-    removeBtn.onclick = () => removeWaypoint(num);
+    const inp = row.querySelector('input');
+    inp.id = newId; inp.placeholder = `경유지 ${num} 검색`;
+    inp.oninput = () => addrInput(newId);
+    const dd = row.querySelector('.addr-dropdown'); if(dd) dd.id = `${newId}_dd`;
+    const tag = row.querySelector('.addr-tag'); if(tag) tag.id = `${newId}_tag`;
+    const txt = tag?.querySelector('span'); if(txt) txt.id = `${newId}_tag_text`;
+    const btns = row.querySelectorAll('button');
+    if(btns[0]) btns[0].onclick = () => openPostcode(newId);
+    if(btns[1]) btns[1].onclick = () => removeWaypoint(num);
+    if(coordsMap[oldId]) { coordsMap[newId] = coordsMap[oldId]; delete coordsMap[oldId]; }
+    if(markerInstances[oldId]) { markerInstances[newId] = markerInstances[oldId]; delete markerInstances[oldId]; }
   });
   document.getElementById('btnAddWaypoint').style.display = waypointCount >= 3 ? 'none' : '';
-}
-
-// ─── 카카오맵 거리 계산 ───────────────────────────────────────────────────────
-
-async function calculateDistance() {
-  const kakaoKey = document.getElementById('kakaoKey').value.trim();
-  const originVal = document.getElementById('origin').value.trim();
-  const destVal   = document.getElementById('destination').value.trim();
-
-  if (!kakaoKey) { showDistanceMsg('error', '카카오 REST API 키를 API 설정에서 입력해주세요.'); return; }
-  if (!originVal)  { showDistanceMsg('error', '출발지를 입력해주세요.'); return; }
-  if (!destVal)    { showDistanceMsg('error', '목적지를 입력해주세요.'); return; }
-
-  showDistanceMsg('loading', '⏳ 경로 계산 중...');
-
-  // 좌표 조회: 이미 캐시된 좌표 우선 사용, 없으면 API로 지오코딩
-  const resolveCoord = async (inputId, addrText) => {
-    if (coordsMap[inputId]) return coordsMap[inputId];
-
-    // 주소 검색
-    const addrData = await kakaoFetch(
-      `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(addrText)}`,
-      kakaoKey
-    );
-    if (addrData.documents?.length) return addrData.documents[0];
-
-    // 키워드 검색 폴백
-    const kwData = await kakaoFetch(
-      `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(addrText)}`,
-      kakaoKey
-    );
-    if (kwData.documents?.length) return kwData.documents[0];
-
-    throw new Error(`"${addrText}" 주소를 찾을 수 없습니다.\n🔍 주소 검색 버튼으로 선택하거나 더 정확한 주소를 입력해주세요.`);
-  };
-
-  try {
-    const [originCoord, destCoord] = await Promise.all([
-      resolveCoord('origin', originVal),
-      resolveCoord('destination', destVal),
-    ]);
-
-    // 경유지
-    const wps = [];
-    for (let i = 1; i <= waypointCount; i++) {
-      const el = document.getElementById(`wp_${i}`);
-      if (el?.value.trim()) {
-        const coord = await resolveCoord(`wp_${i}`, el.value.trim());
-        wps.push(coord);
-      }
-    }
-
-    let url = `https://apis-navi.kakaomobility.com/v1/directions` +
-              `?origin=${originCoord.x},${originCoord.y}` +
-              `&destination=${destCoord.x},${destCoord.y}`;
-    if (wps.length > 0) {
-      url += `&waypoints=${wps.map(w => `${w.x},${w.y}`).join(':')}`;
-    }
-
-    const res = await fetch(url, { headers: { Authorization: `KakaoAK ${kakaoKey}` } });
-    const data = await res.json();
-
-    if (!data.routes?.length || data.routes[0].result_code !== 0) {
-      throw new Error(data.routes?.[0]?.result_msg || '경로를 찾을 수 없습니다.');
-    }
-
-    const distKm = (data.routes[0].summary.distance / 1000).toFixed(1);
-    const durMin = Math.round(data.routes[0].summary.duration / 60);
-    const wpText = wps.length ? ` · 경유지 ${wps.length}개 포함` : '';
-
-    document.getElementById('distance').value = distKm;
-    showDistanceMsg('success',
-      `✅ 거리 계산 완료 — <strong>${distKm} km</strong>${wpText} | 예상 소요 ${durMin}분`
-    );
-    calc();
-  } catch (err) {
-    showDistanceMsg('error', `❌ ${err.message}`);
-  }
-}
-
-function showDistanceMsg(type, html) {
-  const el = document.getElementById('distanceMsg');
-  el.classList.remove('hidden', 'alert-green', 'alert-red', 'alert-blue');
-  el.classList.add(type === 'success' ? 'alert-green' : type === 'error' ? 'alert-red' : 'alert-blue');
-  el.innerHTML = html;
 }
 
 // ─── 오피넷 유가 조회 ─────────────────────────────────────────────────────────
 
 async function fetchOpinetPrice() {
   const opinetKey = document.getElementById('opinetKey').value.trim();
-  if (!opinetKey) {
-    alert('오피넷 API 키를 API 설정 패널에 입력해주세요.\n발급: www.opinet.co.kr → 서비스 신청');
-    return;
-  }
+  if (!opinetKey) { alert('오피넷 API 키를 API 설정에 입력해주세요.\n발급: www.opinet.co.kr'); return; }
+  const ft = FUEL_TYPES[document.getElementById('fuelType').value];
+  if (!ft.opinetCode) { alert(`${ft.label} 차량은 오피넷 조회 불가. 직접 입력해주세요.`); return; }
 
-  const fuelTypeKey = document.getElementById('fuelType').value;
-  const ft = FUEL_TYPES[fuelTypeKey];
-
-  if (!ft.opinetCode) {
-    alert(`${ft.label} 차량 유가는 오피넷에서 조회할 수 없습니다.\n환경부 또는 산업통상자원부 시스템을 참조하여 직접 입력해주세요.`);
-    return;
-  }
-
-  document.getElementById('opinetDateLabel').textContent = '조회 중...';
-
+  document.getElementById('opinetDateLabel').textContent = '조회 중…';
   try {
-    // CORS 프록시를 통해 오피넷 API 호출
-    const apiUrl = `https://www.opinet.co.kr/api/avgAllPrice.do?out=json&code=${opinetKey}`;
+    const apiUrl   = `https://www.opinet.co.kr/api/avgAllPrice.do?out=json&code=${opinetKey}`;
     const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
-
-    const res = await fetch(proxyUrl);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const text = await res.text();
-    const json = JSON.parse(text);
-
-    const oils = json?.RESULT?.OIL;
-    if (!oils?.length) throw new Error('유가 데이터를 파싱할 수 없습니다.');
-
-    const target = oils.find(o => o.PRODCD === ft.opinetCode);
-    if (!target) throw new Error(`유종 코드(${ft.opinetCode})를 찾을 수 없습니다.`);
-
+    const res  = await fetch(proxyUrl);
+    const json = JSON.parse(await res.text());
+    const target = json?.RESULT?.OIL?.find(o => o.PRODCD === ft.opinetCode);
+    if (!target) throw new Error('해당 유종 데이터 없음');
     const price = Math.round(parseFloat(target.PRICE));
     document.getElementById('fuelPrice').value = price;
-    document.getElementById('opinetDateLabel').textContent =
-      `오피넷 기준일: ${target.TRADE_DT} | ${target.PRODNM} ${fmt(price)}원`;
+    document.getElementById('opinetDateLabel').textContent = `오피넷 기준일: ${target.TRADE_DT} | ${target.PRODNM} ${fmt(price)}원`;
     calc();
-  } catch (err) {
+  } catch(err) {
     document.getElementById('opinetDateLabel').textContent = '';
-    alert(`오피넷 조회 실패: ${err.message}\n\n유가를 직접 입력해주세요.\n(오피넷 홈페이지에서 현재 유가 확인 가능)`);
+    alert(`오피넷 조회 실패: ${err.message}\n유가를 직접 입력해주세요.`);
   }
 }
 
@@ -837,184 +980,142 @@ async function fetchOpinetPrice() {
 
 function calc() {
   const grade = document.getElementById('empGrade').value;
-
-  // ── 교통비
-  let transportTotal = 0;
-  let fuelCost = 0, tollCost = 0, parkingCost = 0;
+  let transportTotal = 0, fuelCost = 0, tollCost = 0, parkingCost = 0;
 
   if (transportMode === 'public') {
     transportTotal = num('publicCost');
-    hide('r_fuel_row'); hide('r_toll_row'); hide('r_parking_row');
+    ['r_fuel_row','r_toll_row','r_parking_row'].forEach(id => document.getElementById(id).style.display='none');
   } else {
-    const dist = num('distance');
-    const price = num('fuelPrice');
-    const eff = num('fuelEfficiency') || 1;
-
+    const dist  = num('distance'), price = num('fuelPrice'), eff = num('fuelEfficiency') || 1;
     if (dist > 0 && price > 0) {
       const base = dist * price / eff;
       fuelCost = Math.round(base * 1.5);
       document.getElementById('fuelPreviewText').innerHTML =
-        `${dist} km × ${fmt(price)}원 ÷ ${eff} = <b>${fmt(Math.round(base))}원</b> × 1.5 = <b>${fmt(fuelCost)}원</b>`;
+        `${dist}km × ${fmt(price)}원 ÷ ${eff} = <b>${fmt(Math.round(base))}원</b> × 1.5 = <b>${fmt(fuelCost)}원</b>`;
     } else {
       document.getElementById('fuelPreviewText').textContent = '거리·유가·연비를 입력하면 자동 계산됩니다';
     }
-
-    tollCost    = num('tollCost');
-    parkingCost = num('parkingCost');
+    tollCost       = num('tollCost');
+    parkingCost    = num('parkingCost');
     transportTotal = fuelCost + tollCost + parkingCost;
-
-    setDetailRow('r_fuel_row',    'r_fuel',    fuelCost,    '└ 유류비 (연료비 × 1.5)');
-    setDetailRow('r_toll_row',    'r_toll',    tollCost,    '└ 통행료');
-    setDetailRow('r_parking_row', 'r_parking', parkingCost, '└ 주차비');
+    setRow('r_fuel_row',    'r_fuel',    fuelCost);
+    setRow('r_toll_row',    'r_toll',    tollCost);
+    setRow('r_parking_row', 'r_parking', parkingCost);
   }
 
-  // ── 숙박비
-  const stayDays = num('stayDays');
+  const stayDays      = num('stayDays');
   const accomPerNight = num('accommodationCost');
-  const limit = ACCOM_LIMIT[grade];
-  const cappedPerNight = Math.min(accomPerNight, limit);
-  const accomTotal = cappedPerNight * stayDays;
-
-  const overLimit = accomPerNight > limit && limit < Infinity;
+  const limit         = ACCOM_LIMIT[grade];
+  const cappedNight   = Math.min(accomPerNight, limit);
+  const accomTotal    = cappedNight * stayDays;
+  const overLimit     = accomPerNight > limit && limit < Infinity;
   document.getElementById('accommodationWarn').classList.toggle('hidden', !overLimit);
-
-  const accomDetail = stayDays > 0
-    ? `${fmt(cappedPerNight)}원 × ${stayDays}박${overLimit ? ' (상한선 적용)' : ''}`
-    : '';
+  const accomDetail   = stayDays > 0 ? `${fmt(cappedNight)}원 × ${stayDays}박${overLimit?' (상한 적용)':''}` : '';
   document.getElementById('r_accom_detail').textContent = accomDetail;
   document.getElementById('r_accom_detail_row').style.display = accomDetail ? '' : 'none';
 
-  // ── 일비
-  const tripDaysText = document.getElementById('tripDaysLabel').textContent;
-  const tripDays = parseInt(tripDaysText) || 0;
+  const tripDays  = parseInt(document.getElementById('tripDaysLabel').textContent) || 0;
   const dailyRate = DAILY_ALLOWANCE[grade];
-
-  // 장기출장 감액 처리 (규정 14조: 16일 이후 20% 감액)
-  let dailyTotal = 0;
+  let   dailyTotal = 0;
   if (tripDays > 0) {
-    if (tripDays <= 15) {
-      dailyTotal = dailyRate * tripDays;
-    } else {
-      dailyTotal = dailyRate * 15 + Math.round(dailyRate * 0.8) * (tripDays - 15);
-    }
+    dailyTotal = tripDays <= 15
+      ? dailyRate * tripDays
+      : dailyRate * 15 + Math.round(dailyRate * 0.8) * (tripDays - 15);
   }
-
   document.getElementById('r_daily_info').textContent =
     tripDays > 0 ? `(${fmt(dailyRate)}원/일 × ${tripDays}일)` : '';
 
-  // ── 총합계
   const total = transportTotal + accomTotal + dailyTotal;
-
-  // 렌더링
-  document.getElementById('r_transport').textContent = `${fmt(transportTotal)}원`;
+  document.getElementById('r_transport').textContent     = `${fmt(transportTotal)}원`;
   document.getElementById('r_accommodation').textContent = `${fmt(accomTotal)}원`;
-  document.getElementById('r_daily').textContent = `${fmt(dailyTotal)}원`;
-  document.getElementById('r_total').textContent = `${fmt(total)}원`;
-  document.getElementById('r_total_breakdown').textContent =
+  document.getElementById('r_daily').textContent         = `${fmt(dailyTotal)}원`;
+  document.getElementById('r_total').textContent         = `${fmt(total)}원`;
+  document.getElementById('r_breakdown').textContent     =
     `교통비 ${fmt(transportTotal)} + 숙박비 ${fmt(accomTotal)} + 일비 ${fmt(dailyTotal)}`;
 }
 
-// 헬퍼
-function num(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
-function fmt(n)  { return Math.round(n).toLocaleString('ko-KR'); }
-function hide(id) { document.getElementById(id).style.display = 'none'; }
-function setDetailRow(rowId, valId, value, label) {
-  const row = document.getElementById(rowId);
-  const val = document.getElementById(valId);
-  row.style.display = value > 0 ? '' : 'none';
-  if (val) val.textContent = `${fmt(value)}원`;
+// ─── 유틸 ────────────────────────────────────────────────────────────────────
+
+function num(id)  { return parseFloat(document.getElementById(id)?.value) || 0; }
+function fmt(n)   { return Math.round(n).toLocaleString('ko-KR'); }
+function esc(s)   { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function setRow(rowId, valId, value) {
+  document.getElementById(rowId).style.display = value > 0 ? '' : 'none';
+  document.getElementById(valId).textContent   = `${fmt(value)}원`;
 }
 
 // ─── 엑셀 다운로드 ────────────────────────────────────────────────────────────
 
 function downloadExcel() {
-  const grade = document.getElementById('empGrade').value;
-  const name  = document.getElementById('empName').value || '-';
-  const dept  = document.getElementById('empDept').value || '-';
-  const purpose = document.getElementById('tripPurpose').value || '-';
-  const depart  = document.getElementById('departDate').value || '-';
-  const ret     = document.getElementById('returnDate').value || '-';
-
-  const transportText = transportMode === 'public' ? '대중교통' : '자기차량';
-  const tripDays = document.getElementById('tripDaysLabel').textContent;
-  const stayNights = document.getElementById('stayNightsLabel').textContent;
-
+  const g    = document.getElementById('empGrade').value;
+  const name = document.getElementById('empName').value || '-';
   const rows = [
-    ['대교홀딩스 출장비 정산서', '', '', ''],
+    ['대교홀딩스 출장비 정산서','','',''],
     [],
-    ['성명', name, '직급', GRADE_LABEL[grade]],
-    ['소속부서', dept, '출장목적', purpose],
-    ['출발일', depart, '귀임일', ret],
-    ['출장일수', tripDays, '숙박일수', stayNights],
-    ['이동수단', transportText, '', ''],
+    ['성명', name, '직급', GRADE_LABEL[g]],
+    ['소속', document.getElementById('empDept').value||'-', '출장목적', document.getElementById('tripPurpose').value||'-'],
+    ['출발일', document.getElementById('departDate').value, '귀임일', document.getElementById('returnDate').value],
+    ['출장일수', document.getElementById('tripDaysLabel').textContent, '숙박일수', document.getElementById('stayNightsLabel').textContent],
+    ['이동수단', transportMode==='public' ? '대중교통' : '자기차량', '', ''],
     [],
-    ['구분', '세부내역', '단가/내용', '금액(원)'],
-    ['교통비', transportText === '자기차량' ? `유류비+통행료+주차비` : '실비',
-      '', document.getElementById('r_transport').textContent],
+    ['구분','세부내역','내용','금액'],
+    ['교통비', transportMode==='public'?'대중교통 실비':'자기차량', '', document.getElementById('r_transport').textContent],
   ];
-
   if (transportMode === 'private') {
-    const dist  = document.getElementById('distance').value || '0';
-    const price = document.getElementById('fuelPrice').value || '0';
-    const eff   = document.getElementById('fuelEfficiency').value || '0';
-    const fuelTypeLabel = FUEL_TYPES[document.getElementById('fuelType').value].label;
-    rows.push(['', `유종: ${fuelTypeLabel}`, `${dist}km × ${price}원/단위 ÷ ${eff} × 1.5`,
+    const ft = FUEL_TYPES[document.getElementById('fuelType').value];
+    rows.push(['','유류비',
+      `${document.getElementById('distance').value||0}km × ${document.getElementById('fuelPrice').value||0}원 ÷ ${document.getElementById('fuelEfficiency').value} × 1.5`,
       document.getElementById('r_fuel').textContent || '0원']);
-    const toll = document.getElementById('r_toll').textContent;
-    const park = document.getElementById('r_parking').textContent;
-    if (toll && toll !== '0원') rows.push(['', '통행료', '', toll]);
-    if (park && park !== '0원') rows.push(['', '주차비', '', park]);
+    rows.push(['','통행료', '', document.getElementById('r_toll').textContent || '0원']);
+    rows.push(['','주차비', '', document.getElementById('r_parking').textContent || '0원']);
   }
-
-  rows.push(['숙박비', `${document.getElementById('stayDays').value || 0}박 실비`, '',
-    document.getElementById('r_accommodation').textContent]);
-  rows.push(['일비', `${GRADE_LABEL[grade]} ${DAILY_ALLOWANCE[grade].toLocaleString()}원/일 × ${document.getElementById('tripDaysLabel').textContent}`, '',
-    document.getElementById('r_daily').textContent]);
+  rows.push(['숙박비', `${document.getElementById('stayDays').value||0}박 실비`, '', document.getElementById('r_accommodation').textContent]);
+  rows.push(['일비', `${GRADE_LABEL[g]} ${DAILY_ALLOWANCE[g].toLocaleString()}원/일 × ${document.getElementById('tripDaysLabel').textContent}`, '', document.getElementById('r_daily').textContent]);
   rows.push([]);
   rows.push(['합계', '', '', document.getElementById('r_total').textContent]);
   rows.push([]);
-  rows.push(['비고', document.getElementById('notes').value || '', '', '']);
+  rows.push(['비고', document.getElementById('notes').value||'', '', '']);
 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{ wch: 14 }, { wch: 30 }, { wch: 28 }, { wch: 16 }];
+  ws['!cols'] = [{wch:14},{wch:32},{wch:28},{wch:16}];
   XLSX.utils.book_append_sheet(wb, ws, '출장비정산');
-
-  const fileName = `출장비정산_${name}_${depart}.xlsx`;
-  XLSX.writeFile(wb, fileName);
+  XLSX.writeFile(wb, `출장비정산_${name}_${document.getElementById('departDate').value||'날짜없음'}.xlsx`);
 }
 
-// ─── 폼 초기화 ────────────────────────────────────────────────────────────────
+// ─── 초기화 ──────────────────────────────────────────────────────────────────
 
 function resetForm() {
   if (!confirm('모든 입력 내용을 초기화하시겠습니까?')) return;
-
-  const keepIds = ['kakaoKey', 'opinetKey'];
-  document.querySelectorAll('input, textarea, select').forEach(el => {
-    if (keepIds.includes(el.id)) return;
-    if (el.type === 'radio' || el.type === 'checkbox') return;
+  const keep = ['kakaoJsKey','kakaoRestKey','opinetKey'];
+  document.querySelectorAll('input,textarea,select').forEach(el => {
+    if (keep.includes(el.id) || el.type==='radio' || el.type==='checkbox') return;
     el.value = '';
   });
   document.getElementById('empGrade').value = 'staff';
-
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0,10);
   document.getElementById('departDate').value = today;
   document.getElementById('returnDate').value = today;
-
-  // 경유지 제거 + 좌표·자동완성 상태 초기화
   document.getElementById('waypointContainer').innerHTML = '';
   waypointCount = 0;
   document.getElementById('btnAddWaypoint').style.display = '';
+
   Object.keys(coordsMap).forEach(k => delete coordsMap[k]);
-  hideTag('origin'); hideTag('destination');
+  Object.values(markerInstances).forEach(m => m.setMap(null));
+  for (const k in markerInstances) delete markerInstances[k];
+  if (routePolyline) { routePolyline.setMap(null); routePolyline = null; }
 
-  // 대중교통으로 리셋
-  setTransport('public');
-
+  ['origin','destination'].forEach(id => { hideTag(id); hideDropdown(id); });
   document.getElementById('distanceMsg').classList.add('hidden');
   document.getElementById('fuelPreviewText').textContent = '거리·유가·연비를 입력하면 자동 계산됩니다';
   document.getElementById('opinetDateLabel').textContent = '';
 
+  if (kakaoMap) {
+    kakaoMap.setCenter(new kakao.maps.LatLng(36.5, 127.5));
+    kakaoMap.setLevel(13);
+  }
+
+  setTransport('private');
   onGradeChange();
   onFuelTypeChange();
   updateDays();
