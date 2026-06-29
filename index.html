@@ -7,7 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=38e0ad30ba2fbda393ecae50943972b7&libraries=services"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=38e0ad30ba2fbda393ecae50943972b7&libraries=services&autoload=false"></script>
 <style>
   body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
 
@@ -434,7 +434,8 @@
 <script>
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 
-const OPINET_KEY = 'F260629968';
+const OPINET_KEY   = 'F260629968';
+const KAKAO_REST   = '96bcd7761d5acb1c7520c7520ce0cc3b'; // Kakao Directions REST key
 
 const FUEL_TYPES = {
   gasoline: { label:'휘발유',            efficiency:11.97, priceUnit:'원/L',   opinetCode:'B027' },
@@ -502,29 +503,34 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!e.target.closest('.addr-relative')) hideAllDropdowns();
   });
 
-  // 카카오 맵 SDK 초기화 (head에서 동기 로드된 후 DOM ready 시점에 실행)
-  try {
-    kakaoPS = new kakao.maps.services.Places();
-    kakaoGC = new kakao.maps.services.Geocoder();
-
-    const container = document.getElementById('kakaoMapDiv');
-    kakaoMap = new kakao.maps.Map(container, {
-      center: new kakao.maps.LatLng(36.5, 127.5),
-      level: 13
-    });
-    _markSDKReady();
-  } catch(e) {
-    console.warn('카카오 SDK 초기화 실패:', e.message);
-    const mapDiv = document.getElementById('kakaoMapDiv');
-    if (mapDiv) {
-      mapDiv.style.display = 'flex';
-      mapDiv.style.alignItems = 'center';
-      mapDiv.style.justifyContent = 'center';
-      mapDiv.innerHTML = '<div style="color:#9ca3af;font-size:13px;text-align:center;">🗺️ 카카오 지도를 불러올 수 없습니다.<br><small>카카오 개발자 콘솔에서 도메인(localhost 또는 파일 경로)을 등록해주세요.</small></div>';
+  // 카카오 SDK: autoload=false 이므로 kakao.maps.load() 콜백에서만 안전하게 초기화 가능
+  kakao.maps.load(function() {
+    // ① Places / Geocoder 서비스 초기화 (검색·좌표변환에 사용)
+    try {
+      kakaoPS = new kakao.maps.services.Places();
+      kakaoGC = new kakao.maps.services.Geocoder();
+    } catch(e) {
+      console.warn('카카오 Services 초기화 실패:', e.message);
     }
-    // SDK 실패해도 Nominatim 폴백으로 검색/거리계산 계속 동작
-    _markSDKReady(); // 폴백 모드로 전환
-  }
+
+    // ② 지도 초기화 (services와 독립적으로 처리)
+    try {
+      const container = document.getElementById('kakaoMapDiv');
+      kakaoMap = new kakao.maps.Map(container, {
+        center: new kakao.maps.LatLng(36.5, 127.5),
+        level: 13
+      });
+    } catch(e) {
+      console.warn('카카오 Map 초기화 실패:', e.message);
+      const mapDiv = document.getElementById('kakaoMapDiv');
+      if (mapDiv) {
+        mapDiv.style.cssText += 'display:flex;align-items:center;justify-content:center;';
+        mapDiv.innerHTML = '<div style="color:#9ca3af;font-size:12px;text-align:center;">지도를 표시할 수 없습니다</div>';
+      }
+    }
+
+    _markSDKReady(); // 어느 쪽이든 준비 완료 신호
+  });
 });
 
 // ─── UI 유틸 ─────────────────────────────────────────────────────────────────
@@ -752,6 +758,9 @@ function updateMapMarker(inputId, lon, lat, title) {
 async function resolveCoord(inputId, text) {
   if (coordsMap[inputId]) return coordsMap[inputId];
 
+  // SDK 초기화 대기 (최대 8초)
+  if (!_sdkReady) await waitForSDK(8000);
+
   // 카카오 SDK 사용 가능 시
   if (kakaoPS && kakaoGC) {
     const byKeyword = await new Promise(res => {
@@ -805,22 +814,53 @@ async function calcDistance() {
       }
     }
 
-    // OSRM 경로 계산 (무료·API키 불필요, geojson 경로 포함)
     const allPts   = [origin, ...wps, dest];
     const allNames = [originVal, ...wps.map(w => w.name), destVal];
-    const coordStr = allPts.map(c => `${c.lon},${c.lat}`).join(';');
-    const osrmRes  = await fetch(
-      `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`
-    );
-    const osrmData = await osrmRes.json();
-    if (osrmData.code !== 'Ok' || !osrmData.routes?.length) throw new Error('경로를 계산할 수 없습니다. 주소를 확인해주세요.');
 
-    const route  = osrmData.routes[0];
-    const distKm = (route.distance / 1000).toFixed(1);
-    const durMin = Math.round(route.duration / 60);
+    // ── 1차: Kakao Mobility Directions API ──────────────────────────────────
+    let distKm = null, durMin = null, kakaoRoute = null;
 
-    // 지도에 경로 표시 (geojson coordinates → 카카오 폴리라인)
-    if (kakaoMap) drawOsrmRoute(route.geometry.coordinates, allPts, allNames);
+    const wpStr  = wps.map(w => `${w.lon},${w.lat}`).join('|');
+    let   dirUrl = `https://apis-navi.kakaomobility.com/v1/directions`
+                 + `?origin=${origin.lon},${origin.lat}`
+                 + `&destination=${dest.lon},${dest.lat}`
+                 + `&summary=false`;
+    if (wpStr) dirUrl += `&waypoints=${encodeURIComponent(wpStr)}`;
+
+    const authHdr = { 'Authorization': `KakaoAK ${KAKAO_REST}` };
+
+    // 직접 호출 시도 (GitHub Pages 등 등록된 도메인이면 CORS 통과 가능)
+    for (const url of [dirUrl, `https://corsproxy.io/?${encodeURIComponent(dirUrl)}`]) {
+      try {
+        const res = await Promise.race([
+          fetch(url, { headers: authHdr }),
+          new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 7000))
+        ]);
+        if (!res.ok) continue;
+        const json = await res.json();
+        const rt   = json?.routes?.[0];
+        if (rt?.result_code === 0) { kakaoRoute = rt; break; }
+      } catch { /* 다음 시도 */ }
+    }
+
+    if (kakaoRoute) {
+      distKm = (kakaoRoute.summary.distance / 1000).toFixed(1);
+      durMin = Math.round(kakaoRoute.summary.duration / 60000);
+      if (kakaoMap) drawKakaoRoute(kakaoRoute, allPts, allNames);
+    } else {
+      // ── 2차 폴백: OSRM ────────────────────────────────────────────────────
+      const coordStr = allPts.map(c => `${c.lon},${c.lat}`).join(';');
+      const osrmRes  = await fetch(
+        `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`
+      );
+      const osrmData = await osrmRes.json();
+      if (osrmData.code !== 'Ok' || !osrmData.routes?.length)
+        throw new Error('경로를 계산할 수 없습니다. 입력 주소를 확인해주세요.');
+      const rt = osrmData.routes[0];
+      distKm = (rt.distance / 1000).toFixed(1);
+      durMin = Math.round(rt.duration / 60);
+      if (kakaoMap) drawOsrmRoute(rt.geometry.coordinates, allPts, allNames);
+    }
 
     const wpText = wps.length ? ` · 경유지 ${wps.length}개` : '';
     document.getElementById('distance').value = distKm;
@@ -829,6 +869,51 @@ async function calcDistance() {
   } catch(err) {
     showDistMsg('error', `❌ ${err.message}`);
   }
+}
+
+// ─── 지도에 경로 그리기 (Kakao Directions vertexes → 폴리라인) ───────────────
+
+function drawKakaoRoute(route, allCoords, names) {
+  if (!kakaoMap) return;
+
+  if (routePolyline) { routePolyline.setMap(null); routePolyline = null; }
+  Object.values(markerInstances).forEach(m => m.setMap(null));
+  for (const k in markerInstances) delete markerInstances[k];
+
+  // vertexes: [lon, lat, lon, lat, ...] 형식
+  const path = [];
+  (route.sections || []).forEach(sec => {
+    (sec.roads || []).forEach(road => {
+      const v = road.vertexes || [];
+      for (let i = 0; i < v.length - 1; i += 2)
+        path.push(new kakao.maps.LatLng(v[i + 1], v[i]));
+    });
+  });
+
+  if (path.length > 1) {
+    routePolyline = new kakao.maps.Polyline({
+      path, strokeWeight: 6, strokeColor: '#1e40af',
+      strokeOpacity: 0.85, strokeStyle: 'solid'
+    });
+    routePolyline.setMap(kakaoMap);
+  }
+
+  const bounds = new kakao.maps.LatLngBounds();
+  allCoords.forEach((coord, i) => {
+    const latlng  = new kakao.maps.LatLng(coord.lat, coord.lon);
+    bounds.extend(latlng);
+    const isFirst = i === 0, isLast = i === allCoords.length - 1;
+    const label   = isFirst ? '출' : isLast ? '착' : `경${i}`;
+    const marker  = new kakao.maps.Marker({ position: latlng, title: names[i] || '' });
+    marker.setMap(kakaoMap);
+    markerInstances[isFirst ? 'origin' : isLast ? 'destination' : `wp_${i}`] = marker;
+    const iw = new kakao.maps.InfoWindow({
+      content: `<div style="padding:5px 10px;font-size:12px;font-weight:600;">[${label}] ${esc(names[i] || '')}</div>`,
+      removable: true
+    });
+    kakao.maps.event.addListener(marker, 'click', () => iw.open(kakaoMap, marker));
+  });
+  kakaoMap.setBounds(bounds, 60);
 }
 
 // ─── 지도에 경로 그리기 (OSRM GeoJSON → 카카오 폴리라인) ─────────────────────
