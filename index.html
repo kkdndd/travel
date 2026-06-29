@@ -747,6 +747,26 @@ function normalizeAddr(addr) {
     .replace(/^제주(\s)/, '제주특별자치도$1');
 }
 
+// Kakao Local REST API 직접 호출 헬퍼 (등록 도메인에서 CORS 허용)
+async function kakaoLocalFetch(type, query) {
+  const hdr  = { 'Authorization': `KakaoAK ${KAKAO_REST}` };
+  const base = `https://dapi.kakao.com/v2/local/search/${type}.json?query=${encodeURIComponent(query)}&size=1`;
+  // 직접 호출 우선 (등록 도메인이면 CORS 통과), 실패 시 corsproxy 경유
+  for (const url of [base, `https://corsproxy.io/?${encodeURIComponent(base)}`]) {
+    try {
+      const r = await Promise.race([
+        fetch(url, { headers: hdr }),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
+      ]);
+      if (!r.ok) continue;
+      const j = await r.json();
+      const d = j?.documents?.[0];
+      if (d) return { lon: parseFloat(d.x), lat: parseFloat(d.y) };
+    } catch { /* 다음 시도 */ }
+  }
+  return null;
+}
+
 async function geocodeByKakao(query) {
   // SDK 초기화 대기 (최대 10초)
   if (!_sdkReady) await waitForSDK(10000);
@@ -755,9 +775,17 @@ async function geocodeByKakao(query) {
   const normalized = normalizeAddr(query);
   const queries = [...new Set([query, normalized])];
 
-  // 1. SDK Geocoder (addressSearch) — 도로명/지번 주소에 정확
-  if (kakaoGC) {
-    for (const q of queries) {
+  for (const q of queries) {
+    // 1. Kakao Local REST API — 주소 검색 (직접 호출, CORS 허용)
+    const byRestAddr = await kakaoLocalFetch('address', q);
+    if (byRestAddr) return byRestAddr;
+
+    // 2. Kakao Local REST API — 키워드 검색 (장소명·역명·건물명)
+    const byRestKw = await kakaoLocalFetch('keyword', q);
+    if (byRestKw) return byRestKw;
+
+    // 3. SDK Geocoder (addressSearch) — REST 실패 시 SDK 보조
+    if (kakaoGC) {
       const r = await new Promise(res => {
         kakaoGC.addressSearch(q, (result, status) => {
           res(status === kakao.maps.services.Status.OK && result.length
@@ -766,11 +794,9 @@ async function geocodeByKakao(query) {
       });
       if (r) return r;
     }
-  }
 
-  // 2. SDK Places (keywordSearch) — 장소명·건물명·역명
-  if (kakaoPS) {
-    for (const q of queries) {
+    // 4. SDK Places (keywordSearch)
+    if (kakaoPS) {
       const r = await new Promise(res => {
         kakaoPS.keywordSearch(q, (data, status) => {
           res(status === kakao.maps.services.Status.OK && data.length
@@ -778,26 +804,6 @@ async function geocodeByKakao(query) {
         });
       });
       if (r) return r;
-    }
-  }
-
-  // 3. Kakao Local REST API (직접 호출 → corsproxy 경유)
-  const hdr = { 'Authorization': `KakaoAK ${KAKAO_REST}` };
-  for (const q of queries) {
-    for (const type of ['address', 'keyword']) {
-      const base = `https://dapi.kakao.com/v2/local/search/${type}.json?query=${encodeURIComponent(q)}&size=1`;
-      for (const url of [base, `https://corsproxy.io/?${encodeURIComponent(base)}`]) {
-        try {
-          const r = await Promise.race([
-            fetch(url, { headers: hdr }),
-            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
-          ]);
-          if (!r.ok) continue;
-          const j = await r.json();
-          const d = j?.documents?.[0];
-          if (d) return { lon: parseFloat(d.x), lat: parseFloat(d.y) };
-        } catch { /* 다음 시도 */ }
-      }
     }
   }
   return null;
@@ -811,8 +817,8 @@ async function resolveCoord(inputId, text) {
   throw new Error(`"${text}" 위치를 찾을 수 없습니다.\n검색 목록에서 선택하거나 📮 주소 버튼을 이용해주세요.`);
 }
 
-// ─── 거리·경로 계산 (OSRM) + 카카오맵 링크 ──────────────────────────────────
-// OSRM: 무료 오픈소스, API 키 불필요, 브라우저 CORS 지원, 실제 도로 기반
+// ─── 거리·경로 계산 ───────────────────────────────────────────────────────────
+// 순서: ① Kakao Mobility (직접) → ② Kakao Mobility (corsproxy) → ③ OSRM 폴백
 
 async function calcDistance() {
   const originVal = document.getElementById('origin').value.trim();
@@ -823,7 +829,7 @@ async function calcDistance() {
   showDistMsg('loading', '⏳ 위치 조회 및 경로 계산 중…');
 
   try {
-    // ── 좌표 조회 (카카오 SDK) ────────────────────────────────────────────
+    // ── 좌표 조회 (Kakao Local REST API + SDK) ────────────────────────────
     const origin = await resolveCoord('origin', originVal);
     const dest   = await resolveCoord('destination', destVal);
 
@@ -839,35 +845,74 @@ async function calcDistance() {
     const allPts   = [origin, ...wps, dest];
     const allNames = [originVal, ...wps.map(w => w.name), destVal];
 
-    // ── OSRM 경로 계산 (실제 도로 기반, CORS 지원) ───────────────────────
-    const coordStr = allPts.map(c => `${c.lon},${c.lat}`).join(';');
-    const osrmUrl  = `https://router.project-osrm.org/route/v1/driving/${coordStr}`
-                   + `?overview=full&geometries=geojson&steps=false`;
+    // ── ① Kakao Mobility Directions API ──────────────────────────────────
+    let distKm = null, durMin = null, routeGeo = null, routeSource = '';
 
-    const osrmRes  = await Promise.race([
-      fetch(osrmUrl),
-      new Promise((_, rej) => setTimeout(() => rej(new Error('OSRM 응답 없음')), 10000))
-    ]);
-    if (!osrmRes.ok) throw new Error(`OSRM HTTP ${osrmRes.status}`);
-    const osrmData = await osrmRes.json();
-    if (osrmData.code !== 'Ok' || !osrmData.routes?.length)
-      throw new Error('경로를 계산할 수 없습니다. 입력 주소를 확인해주세요.');
+    const wpStr  = wps.map(w => `${w.lon},${w.lat}`).join('|');
+    const mobUrl = `https://apis-navi.kakaomobility.com/v1/directions`
+                 + `?origin=${origin.lon},${origin.lat}`
+                 + `&destination=${dest.lon},${dest.lat}`
+                 + `&summary=false`
+                 + (wpStr ? `&waypoints=${encodeURIComponent(wpStr)}` : '');
+    const mobHdr = { 'Authorization': `KakaoAK ${KAKAO_REST}` };
 
-    const rt     = osrmData.routes[0];
-    const distKm = (rt.distance / 1000).toFixed(1);
-    const durMin = Math.round(rt.duration / 60);
+    for (const url of [mobUrl, `https://corsproxy.io/?${encodeURIComponent(mobUrl)}`]) {
+      try {
+        const res = await Promise.race([
+          fetch(url, { headers: mobHdr }),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000))
+        ]);
+        if (!res.ok) continue;
+        const json = await res.json();
+        const rt   = json?.routes?.[0];
+        if (rt?.result_code !== 0) continue;
+        distKm      = (rt.summary.distance / 1000).toFixed(1);
+        durMin      = Math.round(rt.summary.duration / 60000);
+        routeSource = 'kakao';
+        // vertexes → GeoJSON 형태로 변환
+        const coords = [];
+        (rt.sections || []).forEach(sec =>
+          (sec.roads || []).forEach(road => {
+            const v = road.vertexes || [];
+            for (let i = 0; i < v.length - 1; i += 2)
+              coords.push([v[i], v[i + 1]]); // [lon, lat]
+          })
+        );
+        routeGeo = coords;
+        break;
+      } catch { /* 다음 시도 */ }
+    }
+
+    // ── ② OSRM 폴백 ──────────────────────────────────────────────────────
+    if (!distKm) {
+      const coordStr = allPts.map(c => `${c.lon},${c.lat}`).join(';');
+      const res = await Promise.race([
+        fetch(`https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('OSRM 응답 없음')), 10000))
+      ]);
+      if (!res.ok) throw new Error('경로 계산 실패. 주소를 확인해주세요.');
+      const data = await res.json();
+      if (data.code !== 'Ok' || !data.routes?.length)
+        throw new Error('경로를 찾을 수 없습니다. 입력 주소를 확인해주세요.');
+      const rt    = data.routes[0];
+      distKm      = (rt.distance / 1000).toFixed(1);
+      durMin      = Math.round(rt.duration / 60);
+      routeGeo    = rt.geometry.coordinates; // [[lon,lat],...]
+      routeSource = 'osrm';
+    }
 
     // ── 지도에 경로 그리기 ────────────────────────────────────────────────
-    if (kakaoMap) drawRoute(rt.geometry.coordinates, allPts, allNames);
+    if (kakaoMap) drawRoute(routeGeo, allPts, allNames);
 
-    // ── 카카오맵 자동차 길찾기 링크 생성 ─────────────────────────────────
-    const kakaoNaviUrl = buildKakaoNaviUrl(allPts, allNames);
+    // ── 카카오맵 자동차 길찾기 링크 ──────────────────────────────────────
+    const naviUrl = buildKakaoNaviUrl(allPts, allNames);
+    const srcNote = routeSource === 'kakao' ? '카카오 경로' : 'OSRM 경로';
 
     const wpText = wps.length ? ` · 경유지 ${wps.length}개` : '';
     document.getElementById('distance').value = distKm;
     showDistMsg('success',
-      `✅ 경로 계산 완료 — <strong>${distKm} km</strong>${wpText} | 예상 소요 ${durMin}분 &nbsp;`
-      + `<a href="${kakaoNaviUrl}" target="_blank" rel="noopener"
+      `✅ ${srcNote} 계산 완료 — <strong>${distKm} km</strong>${wpText} | 예상 소요 ${durMin}분 &nbsp;`
+      + `<a href="${naviUrl}" target="_blank" rel="noopener"
            style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;
                   background:#fee500;color:#3c1e1e;border-radius:6px;font-size:12px;
                   font-weight:700;text-decoration:none;vertical-align:middle;">
@@ -1008,57 +1053,58 @@ async function fetchOpinetPrice() {
 
   const departVal = document.getElementById('departDate').value;
   const today     = new Date().toISOString().slice(0, 10);
-  const useDate   = departVal || today;                     // 출발일 없으면 오늘
-  const dateStr   = useDate.replace(/-/g, '');              // YYYYMMDD
-  const isPast    = departVal && departVal < today;
+  const targetDt  = (departVal || today).replace(/-/g, ''); // YYYYMMDD
 
   const lbl = document.getElementById('opinetDateLabel');
-  lbl.textContent = `${useDate} 기준 조회 중…`;
+  lbl.textContent = '조회 중…';
 
-  // 프록시 fetch 헬퍼
   async function opinetFetch(url) {
     const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-    const res   = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
+    const res   = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
     return JSON.parse(await res.text());
   }
 
   try {
     let price = null, tradeDt = '', prodNm = ft.label;
 
-    // ① 출발일이 과거인 경우: 기간별 전국 평균가 조회
-    if (isPast) {
-      try {
-        const url  = `https://www.opinet.co.kr/api/avgOilPricePeriod.do`
-                   + `?out=json&code=${OPINET_KEY}&prodcd=${ft.opinetCode}`
-                   + `&startDate=${dateStr}&endDate=${dateStr}`;
-        const json = await opinetFetch(url);
-        const item = json?.RESULT?.OIL?.[0];
+    // ① 최근 한 달 일별 가격 목록 → 출발일 또는 직전 영업일 가격 선택
+    try {
+      const url  = `https://www.opinet.co.kr/api/avgRecentMonthPriceList.do`
+                 + `?out=json&code=${OPINET_KEY}&prodcd=${ft.opinetCode}`;
+      const json = await opinetFetch(url);
+      const list = json?.RESULT?.OIL || [];
+      if (list.length) {
+        // 출발일 이하 날짜 중 가장 가까운 항목 (주말·공휴일 자동 처리)
+        const sorted = list
+          .filter(o => o.TRADE_DT && o.TRADE_DT <= targetDt)
+          .sort((a, b) => b.TRADE_DT.localeCompare(a.TRADE_DT));
+        const item = sorted[0];
         if (item?.PRICE) {
           price   = Math.round(parseFloat(item.PRICE));
-          tradeDt = item.TRADE_DT || dateStr;
+          tradeDt = item.TRADE_DT;
+          prodNm  = item.PRODNM || ft.label;
         }
-      } catch { /* 폴백으로 진행 */ }
-    }
+      }
+    } catch { /* 폴백으로 */ }
 
-    // ② 출발일이 오늘이거나 과거 조회 실패 → 현재 전국 평균가
+    // ② 폴백: 현재 전국 평균가 (목록 조회 실패 또는 한 달 이전 출발일)
     if (!price) {
       const url  = `https://www.opinet.co.kr/api/avgAllPrice.do?out=json&code=${OPINET_KEY}`;
       const json = await opinetFetch(url);
       const item = json?.RESULT?.OIL?.find(o => o.PRODCD === ft.opinetCode);
       if (!item) throw new Error('해당 유종 데이터 없음');
       price   = Math.round(parseFloat(item.PRICE));
-      tradeDt = item.TRADE_DT || today;
+      tradeDt = item.TRADE_DT || today.replace(/-/g, '');
       prodNm  = item.PRODNM  || ft.label;
     }
 
     document.getElementById('fuelPrice').value = price;
 
-    // 출발일과 오피넷 기준일이 다르면 안내 표시
-    const fmtDate   = tradeDt.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
+    const fmtDate    = tradeDt.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
     const isMismatch = departVal && fmtDate !== departVal;
     lbl.textContent  = isMismatch
-      ? `오피넷 기준일: ${fmtDate} | ${prodNm} ${fmt(price)}원 ⚠️ 출발일(${departVal}) 데이터 없음 — 가장 가까운 날짜 적용`
-      : `오피넷 기준일: ${fmtDate} | ${prodNm} ${fmt(price)}원`;
+      ? `오피넷 ${fmtDate} 기준 | ${prodNm} ${fmt(price)}원/L (출발일 ${departVal} 주말·공휴일 → 직전 영업일 적용)`
+      : `오피넷 ${fmtDate} 기준 | ${prodNm} ${fmt(price)}원/L`;
     calc();
   } catch(err) {
     lbl.textContent = '';
