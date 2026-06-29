@@ -680,7 +680,10 @@ function hideTag(inputId) { document.getElementById(`${inputId}_tag`)?.classList
 function openPostcode(inputId) {
   new daum.Postcode({
     oncomplete: async function(data) {
-      const addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+      // roadAddress 우선, 없으면 jibunAddress, 정식 명칭으로 정규화
+      const raw  = (data.userSelectedType === 'R' && data.roadAddress)
+                   ? data.roadAddress : (data.jibunAddress || data.address || '');
+      const addr = normalizeAddr(raw) || raw;
       document.getElementById(inputId).value = addr;
       delete coordsMap[inputId];
       hideDropdown(inputId);
@@ -736,56 +739,85 @@ function updateMapMarker(inputId, lon, lat, title) {
 }
 
 // ─── 카카오 전용 좌표 조회 ────────────────────────────────────────────────────
-// 우선순위: SDK 주소검색 → SDK 키워드검색 → REST 주소검색(직접) → REST 키워드검색(직접)
-//           → REST 주소검색(corsproxy) → REST 키워드검색(corsproxy)
+
+// Daum 우편번호 API는 축약형 반환 ("서울 은평구" 등)
+// Kakao Geocoder는 정식 명칭 필요 ("서울특별시 은평구" 등) → 정규화
+function normalizeAddr(addr) {
+  if (!addr) return addr;
+  return addr
+    .replace(/^서울(\s)/, '서울특별시$1')
+    .replace(/^부산(\s)/, '부산광역시$1')
+    .replace(/^인천(\s)/, '인천광역시$1')
+    .replace(/^대구(\s)/, '대구광역시$1')
+    .replace(/^대전(\s)/, '대전광역시$1')
+    .replace(/^광주(\s)/, '광주광역시$1')
+    .replace(/^울산(\s)/, '울산광역시$1')
+    .replace(/^세종(\s)/, '세종특별자치시$1')
+    .replace(/^경기(\s)/, '경기도$1')
+    .replace(/^강원(\s)/, '강원도$1')
+    .replace(/^충북(\s)/, '충청북도$1')
+    .replace(/^충남(\s)/, '충청남도$1')
+    .replace(/^전북(\s)/, '전라북도$1')
+    .replace(/^전남(\s)/, '전라남도$1')
+    .replace(/^경북(\s)/, '경상북도$1')
+    .replace(/^경남(\s)/, '경상남도$1')
+    .replace(/^제주(\s)/, '제주특별자치도$1');
+}
 
 async function geocodeByKakao(query) {
-  // SDK 초기화 대기 (최대 8초)
-  if (!_sdkReady) await waitForSDK(8000);
+  // SDK 초기화 대기 (최대 10초)
+  if (!_sdkReady) await waitForSDK(10000);
 
-  // 1. SDK Geocoder - 도로명/지번 주소에 가장 정확
+  // 검색할 쿼리 목록: 원본 + 정식명칭 정규화본 (중복 제거)
+  const normalized = normalizeAddr(query);
+  const queries = [...new Set([query, normalized])];
+
+  // 1. SDK Geocoder (addressSearch) — 도로명/지번 주소에 정확
   if (kakaoGC) {
-    const r = await new Promise(res => {
-      kakaoGC.addressSearch(query, (result, status) => {
-        res(status === kakao.maps.services.Status.OK && result.length
-          ? { lon: parseFloat(result[0].x), lat: parseFloat(result[0].y) } : null);
+    for (const q of queries) {
+      const r = await new Promise(res => {
+        kakaoGC.addressSearch(q, (result, status) => {
+          res(status === kakao.maps.services.Status.OK && result.length
+            ? { lon: parseFloat(result[0].x), lat: parseFloat(result[0].y) } : null);
+        });
       });
-    });
-    if (r) return r;
-  }
-
-  // 2. SDK Places - 장소명, 건물명, 역 등
-  if (kakaoPS) {
-    const r = await new Promise(res => {
-      kakaoPS.keywordSearch(query, (data, status) => {
-        res(status === kakao.maps.services.Status.OK && data.length
-          ? { lon: parseFloat(data[0].x), lat: parseFloat(data[0].y) } : null);
-      });
-    });
-    if (r) return r;
-  }
-
-  // 3. Kakao Local REST API (SDK 실패 시 직접 호출 + corsproxy 경유)
-  const hdr = { 'Authorization': `KakaoAK ${KAKAO_REST}` };
-  const restEndpoints = [
-    `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(query)}&size=1`,
-    `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(query)}&size=1`,
-  ];
-  for (const base of restEndpoints) {
-    for (const url of [base, `https://corsproxy.io/?${encodeURIComponent(base)}`]) {
-      try {
-        const r = await Promise.race([
-          fetch(url, { headers: hdr }),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
-        ]);
-        if (!r.ok) continue;
-        const j = await r.json();
-        const d = j?.documents?.[0];
-        if (d) return { lon: parseFloat(d.x), lat: parseFloat(d.y) };
-      } catch { /* 다음 시도 */ }
+      if (r) return r;
     }
   }
-  return null; // 모든 방법 실패
+
+  // 2. SDK Places (keywordSearch) — 장소명·건물명·역명
+  if (kakaoPS) {
+    for (const q of queries) {
+      const r = await new Promise(res => {
+        kakaoPS.keywordSearch(q, (data, status) => {
+          res(status === kakao.maps.services.Status.OK && data.length
+            ? { lon: parseFloat(data[0].x), lat: parseFloat(data[0].y) } : null);
+        });
+      });
+      if (r) return r;
+    }
+  }
+
+  // 3. Kakao Local REST API (직접 호출 → corsproxy 경유)
+  const hdr = { 'Authorization': `KakaoAK ${KAKAO_REST}` };
+  for (const q of queries) {
+    for (const type of ['address', 'keyword']) {
+      const base = `https://dapi.kakao.com/v2/local/search/${type}.json?query=${encodeURIComponent(q)}&size=1`;
+      for (const url of [base, `https://corsproxy.io/?${encodeURIComponent(base)}`]) {
+        try {
+          const r = await Promise.race([
+            fetch(url, { headers: hdr }),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
+          ]);
+          if (!r.ok) continue;
+          const j = await r.json();
+          const d = j?.documents?.[0];
+          if (d) return { lon: parseFloat(d.x), lat: parseFloat(d.y) };
+        } catch { /* 다음 시도 */ }
+      }
+    }
+  }
+  return null;
 }
 
 // 경로 계산 전 좌표 보장 (coordsMap에 없으면 새로 조회)
@@ -988,27 +1020,70 @@ function removeWaypoint(n) {
   document.getElementById('btnAddWaypoint').style.display = waypointCount >= 3 ? 'none' : '';
 }
 
-// ─── 오피넷 유가 조회 ─────────────────────────────────────────────────────────
+// ─── 오피넷 유가 조회 (출발일 기준) ──────────────────────────────────────────
 
 async function fetchOpinetPrice() {
-  const opinetKey = OPINET_KEY;
   const ft = FUEL_TYPES[document.getElementById('fuelType').value];
-  if (!ft.opinetCode) { alert(`${ft.label} 차량은 오피넷 조회 불가. 직접 입력해주세요.`); return; }
+  if (!ft.opinetCode) {
+    alert(`${ft.label} 차량은 오피넷 조회 불가. 직접 입력해주세요.`); return;
+  }
 
-  document.getElementById('opinetDateLabel').textContent = '조회 중…';
+  const departVal = document.getElementById('departDate').value;
+  const today     = new Date().toISOString().slice(0, 10);
+  const useDate   = departVal || today;                     // 출발일 없으면 오늘
+  const dateStr   = useDate.replace(/-/g, '');              // YYYYMMDD
+  const isPast    = departVal && departVal < today;
+
+  const lbl = document.getElementById('opinetDateLabel');
+  lbl.textContent = `${useDate} 기준 조회 중…`;
+
+  // 프록시 fetch 헬퍼
+  async function opinetFetch(url) {
+    const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const res   = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
+    return JSON.parse(await res.text());
+  }
+
   try {
-    const apiUrl   = `https://www.opinet.co.kr/api/avgAllPrice.do?out=json&code=${opinetKey}`;
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
-    const res  = await fetch(proxyUrl);
-    const json = JSON.parse(await res.text());
-    const target = json?.RESULT?.OIL?.find(o => o.PRODCD === ft.opinetCode);
-    if (!target) throw new Error('해당 유종 데이터 없음');
-    const price = Math.round(parseFloat(target.PRICE));
+    let price = null, tradeDt = '', prodNm = ft.label;
+
+    // ① 출발일이 과거인 경우: 기간별 전국 평균가 조회
+    if (isPast) {
+      try {
+        const url  = `https://www.opinet.co.kr/api/avgOilPricePeriod.do`
+                   + `?out=json&code=${OPINET_KEY}&prodcd=${ft.opinetCode}`
+                   + `&startDate=${dateStr}&endDate=${dateStr}`;
+        const json = await opinetFetch(url);
+        const item = json?.RESULT?.OIL?.[0];
+        if (item?.PRICE) {
+          price   = Math.round(parseFloat(item.PRICE));
+          tradeDt = item.TRADE_DT || dateStr;
+        }
+      } catch { /* 폴백으로 진행 */ }
+    }
+
+    // ② 출발일이 오늘이거나 과거 조회 실패 → 현재 전국 평균가
+    if (!price) {
+      const url  = `https://www.opinet.co.kr/api/avgAllPrice.do?out=json&code=${OPINET_KEY}`;
+      const json = await opinetFetch(url);
+      const item = json?.RESULT?.OIL?.find(o => o.PRODCD === ft.opinetCode);
+      if (!item) throw new Error('해당 유종 데이터 없음');
+      price   = Math.round(parseFloat(item.PRICE));
+      tradeDt = item.TRADE_DT || today;
+      prodNm  = item.PRODNM  || ft.label;
+    }
+
     document.getElementById('fuelPrice').value = price;
-    document.getElementById('opinetDateLabel').textContent = `오피넷 기준일: ${target.TRADE_DT} | ${target.PRODNM} ${fmt(price)}원`;
+
+    // 출발일과 오피넷 기준일이 다르면 안내 표시
+    const fmtDate   = tradeDt.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
+    const isMismatch = departVal && fmtDate !== departVal;
+    lbl.textContent  = isMismatch
+      ? `오피넷 기준일: ${fmtDate} | ${prodNm} ${fmt(price)}원 ⚠️ 출발일(${departVal}) 데이터 없음 — 가장 가까운 날짜 적용`
+      : `오피넷 기준일: ${fmtDate} | ${prodNm} ${fmt(price)}원`;
     calc();
   } catch(err) {
-    document.getElementById('opinetDateLabel').textContent = '';
+    lbl.textContent = '';
     alert(`오피넷 조회 실패: ${err.message}\n유가를 직접 입력해주세요.`);
   }
 }
