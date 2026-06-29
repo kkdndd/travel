@@ -78,13 +78,6 @@
   .dot-red   { background: #fee2e2; color: #b91c1c; }
   .route-line { width: 2px; height: 18px; background: #d1d5db; margin-top: 3px; }
 
-  /* 카카오 지도 */
-  #kakaoMapDiv {
-    width: 100%; height: 300px; border-radius: 10px;
-    border: 1px solid #e5e7eb; margin-top: 12px; overflow: hidden;
-    background: #f3f4f6;
-  }
-
   /* Result */
   .result-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
   .result-row:last-child { border-bottom: none; }
@@ -114,7 +107,6 @@
     .card { box-shadow: none; border: 1px solid #e5e7eb; margin-bottom: 12px; padding: 14px; page-break-inside: avoid; }
     .total-box { background: #1e40af !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .page-header-print { display: block !important; }
-    #kakaoMapDiv { display: none; }
   }
   .page-header-print { display: none; }
 </style>
@@ -125,8 +117,8 @@
 <div class="top-bar no-print">
   <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center shrink-0">
-        <span class="text-white text-xs font-bold">대교</span>
+      <div class="w-20 h-16 bg-gray-400 rounded-lg flex items-center justify-center shrink-0">
+        <span class="text-white text-sm font-bold">대교홀딩스</span>
       </div>
       <div>
         <div class="font-bold text-gray-900 text-sm leading-tight">대교홀딩스 출장비 정산</div>
@@ -134,8 +126,8 @@
       </div>
     </div>
     <div class="flex gap-2">
+      <button onclick="openRegs()" class="btn btn-gray text-xs">📋 여비규정</button>
       <button onclick="window.print()" class="btn btn-gray text-xs">🖨️ 인쇄/PDF</button>
-      <button onclick="downloadExcel()" class="btn btn-gray text-xs">📊 엑셀</button>
       <button onclick="resetForm()" class="btn btn-gray text-xs">🔄 초기화</button>
     </div>
   </div>
@@ -239,17 +231,17 @@
         </div>
       </div>
 
-      <!-- 경로 입력 -->
+      <!-- 행선지 -->
       <div class="mb-3">
         <div class="flex items-center justify-between mb-3">
-          <label class="text-xs font-semibold text-gray-600">경로 입력</label>
+          <label class="text-xs font-semibold text-gray-600">행선지</label>
           <span class="text-xs text-gray-400">장소명·주소·건물명 모두 검색 가능</span>
         </div>
 
         <!-- 출발지 -->
         <div class="route-row">
           <div class="route-connector">
-            <div class="route-dot dot-green">출</div>
+            <div class="route-dot dot-green" style="font-size:9px;">출발지</div>
             <div class="route-line"></div>
           </div>
           <div class="addr-wrap">
@@ -268,15 +260,15 @@
         <!-- 경유지 컨테이너 -->
         <div id="waypointContainer"></div>
 
-        <!-- 목적지 -->
+        <!-- 도착지 -->
         <div class="route-row">
           <div class="route-connector">
-            <div class="route-dot dot-red">착</div>
+            <div class="route-dot dot-red" style="font-size:9px;">도착지</div>
           </div>
           <div class="addr-wrap">
             <div class="flex gap-2">
               <div class="addr-relative flex-1">
-                <input type="text" id="destination" placeholder="목적지 검색" class="form-input"
+                <input type="text" id="destination" placeholder="도착지 검색" class="form-input"
                   oninput="addrInput('destination')" autocomplete="off">
                 <ul id="destination_dd" class="addr-dropdown hidden"></ul>
               </div>
@@ -288,29 +280,12 @@
 
         <div class="flex gap-2 mt-3 no-print">
           <button onclick="addWaypoint()" id="btnAddWaypoint" class="btn btn-gray text-xs">+ 경유지 추가</button>
-          <button onclick="calcDistance()" class="btn btn-blue flex-1">🗺️ 거리 자동 계산 (OSRM)</button>
+          <a id="btnNaverMap" href="https://map.naver.com/" target="_blank" rel="noopener"
+             class="btn btn-blue flex-1 text-center no-underline"
+             style="display:flex;align-items:center;justify-content:center;text-decoration:none;">
+            🗺️ 네이버 지도 연결
+          </a>
         </div>
-        <div id="distanceMsg" class="hidden alert mt-3 text-xs"></div>
-
-        <!-- 길찾기 확인 패널 (출발지+도착지 입력 후 자동 표시) -->
-        <div id="naviPanel" class="hidden no-print mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl">
-          <p class="text-xs font-semibold text-amber-800 mb-2">📍 길찾기 앱에서 거리를 확인하고 아래에 직접 입력하세요</p>
-          <div class="flex gap-2 flex-wrap">
-            <a id="btnKakaoNavi" href="#" target="_blank" rel="noopener"
-               class="btn text-xs no-underline"
-               style="background:#fee500;color:#3c1e1e;font-weight:700;padding:7px 14px;border-radius:8px;text-decoration:none;">
-              🗺️ 카카오맵 길찾기
-            </a>
-            <a id="btnNaverNavi" href="#" target="_blank" rel="noopener"
-               class="btn text-xs no-underline"
-               style="background:#03c75a;color:white;font-weight:700;padding:7px 14px;border-radius:8px;text-decoration:none;">
-              🗺️ 네이버 길찾기
-            </a>
-          </div>
-        </div>
-
-        <!-- 카카오 지도 -->
-        <div id="kakaoMapDiv" class="no-print"></div>
       </div>
 
       <!-- 유류비 입력 -->
@@ -326,7 +301,9 @@
           </label>
           <div class="flex gap-1">
             <input type="number" id="fuelPrice" placeholder="0" min="0" oninput="calc()" class="form-input flex-1">
-            <button onclick="fetchOpinetPrice()" class="btn-orange btn flex-shrink-0 no-print">오피넷</button>
+            <span id="fuelPriceBtn" class="no-print">
+              <button onclick="fetchOpinetPrice()" class="btn-orange btn flex-shrink-0">오피넷</button>
+            </span>
           </div>
           <p class="text-xs text-gray-400 mt-1" id="opinetDateLabel"></p>
         </div>
@@ -457,7 +434,7 @@ const KAKAO_REST   = '96bcd7761d5acb1c7520c7520ce0cc3b'; // Kakao Directions RES
 const FUEL_TYPES = {
   gasoline: { label:'휘발유',            efficiency:11.97, priceUnit:'원/L',   opinetCode:'B027' },
   diesel:   { label:'경유',              efficiency:12.52, priceUnit:'원/L',   opinetCode:'D047' },
-  lpg:      { label:'LPG',              efficiency:8.83,  priceUnit:'원/L',   opinetCode:'C004' },
+  lpg:      { label:'LPG',              efficiency:8.83,  priceUnit:'원/L',   opinetCode:'K015' },
   hybrid:   { label:'하이브리드',        efficiency:15.37, priceUnit:'원/L',   opinetCode:'B027' },
   plugin:   { label:'플러그인 하이브리드', efficiency:10.61, priceUnit:'원/L',   opinetCode:'B027' },
   electric: { label:'전기',              efficiency:5.22,  priceUnit:'원/kWh', opinetCode:null   },
@@ -472,15 +449,8 @@ const GRADE_LABEL     = { chairman:'회장', ceo:'대표/COO', executive:'임원
 
 let transportMode = 'private';   // 자기차량 기본
 let waypointCount = 0;
-const coordsMap   = {};          // { inputId: { lon, lat } }
 const debounceMap = {};
 
-// 카카오 맵 객체
-let kakaoMap      = null;
-let kakaoPS       = null;   // Places service
-let kakaoGC       = null;   // Geocoder service
-const mapMarkers  = [];
-let routePolyline = null;
 
 // ─── 카카오 SDK 초기화 상태 ──────────────────────────────────────────────────
 
@@ -490,7 +460,7 @@ const _sdkQueue = [];
 function waitForSDK(ms = 6000) {
   if (_sdkReady) return Promise.resolve(true);
   return new Promise(resolve => {
-    const tid = setTimeout(() => {
+    const tid = setTimeout(() => {  // eslint-disable-line
       const i = _sdkQueue.indexOf(done);
       if (i >= 0) _sdkQueue.splice(i, 1);
       resolve(false); // 타임아웃 — 카카오 준비 안 됨
@@ -520,15 +490,11 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!e.target.closest('.addr-relative')) hideAllDropdowns();
   });
 
-  // 카카오 SDK 초기화 (autoload 기본값 사용 — 스크립트 로드 완료 시 즉시 사용 가능)
-  kakaoPS = new kakao.maps.services.Places();
-  kakaoGC = new kakao.maps.services.Geocoder();
-
-  const container = document.getElementById('kakaoMapDiv');
-  kakaoMap = new kakao.maps.Map(container, {
-    center: new kakao.maps.LatLng(36.5, 127.5),
-    level: 13
-  });
+  // 카카오 SDK 초기화 (Places/Geocoder — 주소 검색용)
+  try {
+    kakaoPS = new kakao.maps.services.Places();
+    kakaoGC = new kakao.maps.services.Geocoder();
+  } catch(e) {}
 
   _markSDKReady();
 });
@@ -552,9 +518,31 @@ function setTransport(mode) {
 }
 
 function onFuelTypeChange() {
-  const ft = FUEL_TYPES[document.getElementById('fuelType').value];
-  document.getElementById('fuelEfficiency').value     = ft.efficiency;
-  document.getElementById('fuelPriceUnit').textContent = `(${ft.priceUnit})`;
+  const key = document.getElementById('fuelType').value;
+  const ft  = FUEL_TYPES[key];
+  document.getElementById('fuelEfficiency').value      = ft.efficiency;
+  document.getElementById('fuelPriceUnit').textContent  = `(${ft.priceUnit})`;
+  document.getElementById('opinetDateLabel').innerHTML  = '';
+
+  // 유종별 버튼 교체
+  const btnWrap = document.getElementById('fuelPriceBtn');
+  if (key === 'electric') {
+    btnWrap.innerHTML = `<a href="https://ev.or.kr/nportal/evcarInfo/initEvcarChargePrice.do"
+      target="_blank" rel="noopener"
+      class="btn flex-shrink-0"
+      style="background:#16a34a;color:white;text-decoration:none;white-space:nowrap;">
+      ⚡ 충전요금 조회
+    </a>`;
+  } else if (key === 'hydrogen') {
+    btnWrap.innerHTML = `<a href="https://ev.or.kr/nportal/evcarInfo/initH2ChargePrice.do"
+      target="_blank" rel="noopener"
+      class="btn flex-shrink-0"
+      style="background:#0ea5e9;color:white;text-decoration:none;white-space:nowrap;">
+      💧 충전요금 조회
+    </a>`;
+  } else {
+    btnWrap.innerHTML = `<button onclick="fetchOpinetPrice()" class="btn-orange btn flex-shrink-0">오피넷</button>`;
+  }
   calc();
 }
 
@@ -591,7 +579,6 @@ function updateDays() {
 // ─── 주소 검색 (카카오 SDK 전용) ─────────────────────────────────────────────
 
 function addrInput(inputId) {
-  delete coordsMap[inputId];
   hideTag(inputId);
   const q = document.getElementById(inputId).value.trim();
   if (q.length < 2) { hideDropdown(inputId); return; }
@@ -654,11 +641,9 @@ function renderDropdown(inputId, items) {
 
 function selectAddr(inputId, item) {
   document.getElementById(inputId).value = item.name;
-  coordsMap[inputId] = { lon: item.lon, lat: item.lat };
   hideDropdown(inputId);
   showTag(inputId, item.name);
   updateMapMarker(inputId, item.lon, item.lat, item.name);
-  updateNaviPanel();
 }
 
 function showDropdownStatus(inputId, msg) {
@@ -680,357 +665,19 @@ function hideTag(inputId) { document.getElementById(`${inputId}_tag`)?.classList
 
 function openPostcode(inputId) {
   new daum.Postcode({
-    oncomplete: async function(data) {
-      // roadAddress 우선, 없으면 jibunAddress, 정식 명칭으로 정규화
-      const raw  = (data.userSelectedType === 'R' && data.roadAddress)
+    oncomplete: function(data) {
+      const addr = (data.userSelectedType === 'R' && data.roadAddress)
                    ? data.roadAddress : (data.jibunAddress || data.address || '');
-      const addr = normalizeAddr(raw) || raw;
       document.getElementById(inputId).value = addr;
-      delete coordsMap[inputId];
       hideDropdown(inputId);
-      // 좌표 조회 중 표시
-      showTag(inputId, '📍 좌표 조회 중…');
-      const coord = await geocodeByKakao(addr);
-      if (coord) {
-        coordsMap[inputId] = coord;
-        showTag(inputId, addr);
-        updateMapMarker(inputId, coord.lon, coord.lat, addr);
-        updateNaviPanel();
-      } else {
-        hideTag(inputId);
-        showDropdownStatus(inputId,
-          `⚠️ "${addr}" 좌표를 찾을 수 없습니다. 검색창에서 다시 입력해 주세요.`);
-      }
+      showTag(inputId, addr);
     }
   }).open();
-}
-
-// ─── 지도 마커 관리 ──────────────────────────────────────────────────────────
-
-const markerInstances = {}; // { inputId: kakao.maps.Marker }
-
-function updateMapMarker(inputId, lon, lat, title) {
-  if (!kakaoMap) return;
-
-  // 기존 마커 제거
-  if (markerInstances[inputId]) {
-    markerInstances[inputId].setMap(null);
-  }
-
-  // 마커 색상: 출발=초록, 목적지=빨강, 경유=파랑
-  const isOrigin = inputId === 'origin';
-  const isDest   = inputId === 'destination';
-
-  const marker = new kakao.maps.Marker({
-    position: new kakao.maps.LatLng(lat, lon),
-    title: title,
-  });
-  marker.setMap(kakaoMap);
-  markerInstances[inputId] = marker;
-
-  // 인포윈도우 (장소명 표시)
-  const iw = new kakao.maps.InfoWindow({
-    content: `<div style="padding:4px 8px;font-size:12px;font-weight:600;white-space:nowrap;">${esc(title)}</div>`,
-    removable: true
-  });
-  kakao.maps.event.addListener(marker, 'click', () => iw.open(kakaoMap, marker));
-
-  // 지도 중심 이동
-  kakaoMap.setCenter(new kakao.maps.LatLng(lat, lon));
-  if (kakaoMap.getLevel() > 7) kakaoMap.setLevel(7);
-}
-
-// ─── 카카오 전용 좌표 조회 ────────────────────────────────────────────────────
-
-// Daum 우편번호 API는 축약형 반환 ("서울 은평구" 등)
-// Kakao Geocoder는 정식 명칭 필요 ("서울특별시 은평구" 등) → 정규화
-function normalizeAddr(addr) {
-  if (!addr) return addr;
-  return addr
-    .replace(/^서울(\s)/, '서울특별시$1')
-    .replace(/^부산(\s)/, '부산광역시$1')
-    .replace(/^인천(\s)/, '인천광역시$1')
-    .replace(/^대구(\s)/, '대구광역시$1')
-    .replace(/^대전(\s)/, '대전광역시$1')
-    .replace(/^광주(\s)/, '광주광역시$1')
-    .replace(/^울산(\s)/, '울산광역시$1')
-    .replace(/^세종(\s)/, '세종특별자치시$1')
-    .replace(/^경기(\s)/, '경기도$1')
-    .replace(/^강원(\s)/, '강원도$1')
-    .replace(/^충북(\s)/, '충청북도$1')
-    .replace(/^충남(\s)/, '충청남도$1')
-    .replace(/^전북(\s)/, '전라북도$1')
-    .replace(/^전남(\s)/, '전라남도$1')
-    .replace(/^경북(\s)/, '경상북도$1')
-    .replace(/^경남(\s)/, '경상남도$1')
-    .replace(/^제주(\s)/, '제주특별자치도$1');
-}
-
-// Kakao Local REST API 직접 호출 헬퍼 (등록 도메인에서 CORS 허용)
-async function kakaoLocalFetch(type, query) {
-  const hdr  = { 'Authorization': `KakaoAK ${KAKAO_REST}` };
-  const base = `https://dapi.kakao.com/v2/local/search/${type}.json?query=${encodeURIComponent(query)}&size=1`;
-  // 직접 호출 우선 (등록 도메인이면 CORS 통과), 실패 시 corsproxy 경유
-  for (const url of [base, `https://corsproxy.io/?${encodeURIComponent(base)}`]) {
-    try {
-      const r = await Promise.race([
-        fetch(url, { headers: hdr }),
-        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
-      ]);
-      if (!r.ok) continue;
-      const j = await r.json();
-      const d = j?.documents?.[0];
-      if (d) return { lon: parseFloat(d.x), lat: parseFloat(d.y) };
-    } catch { /* 다음 시도 */ }
-  }
-  return null;
-}
-
-async function geocodeByKakao(query) {
-  // SDK 초기화 대기 (최대 10초)
-  if (!_sdkReady) await waitForSDK(10000);
-
-  // 검색할 쿼리 목록: 원본 + 정식명칭 정규화본 (중복 제거)
-  const normalized = normalizeAddr(query);
-  const queries = [...new Set([query, normalized])];
-
-  for (const q of queries) {
-    // 1. Kakao Local REST API — 주소 검색 (직접 호출, CORS 허용)
-    const byRestAddr = await kakaoLocalFetch('address', q);
-    if (byRestAddr) return byRestAddr;
-
-    // 2. Kakao Local REST API — 키워드 검색 (장소명·역명·건물명)
-    const byRestKw = await kakaoLocalFetch('keyword', q);
-    if (byRestKw) return byRestKw;
-
-    // 3. SDK Geocoder (addressSearch) — REST 실패 시 SDK 보조
-    if (kakaoGC) {
-      const r = await new Promise(res => {
-        kakaoGC.addressSearch(q, (result, status) => {
-          res(status === kakao.maps.services.Status.OK && result.length
-            ? { lon: parseFloat(result[0].x), lat: parseFloat(result[0].y) } : null);
-        });
-      });
-      if (r) return r;
-    }
-
-    // 4. SDK Places (keywordSearch)
-    if (kakaoPS) {
-      const r = await new Promise(res => {
-        kakaoPS.keywordSearch(q, (data, status) => {
-          res(status === kakao.maps.services.Status.OK && data.length
-            ? { lon: parseFloat(data[0].x), lat: parseFloat(data[0].y) } : null);
-        });
-      });
-      if (r) return r;
-    }
-  }
-  return null;
-}
-
-// 경로 계산 전 좌표 보장 (coordsMap에 없으면 새로 조회)
-async function resolveCoord(inputId, text) {
-  if (coordsMap[inputId]) return coordsMap[inputId];
-  const coord = await geocodeByKakao(text);
-  if (coord) { coordsMap[inputId] = coord; return coord; }
-  throw new Error(`"${text}" 위치를 찾을 수 없습니다.\n검색 목록에서 선택하거나 📮 주소 버튼을 이용해주세요.`);
 }
 
 // ─── 거리·경로 계산 ───────────────────────────────────────────────────────────
 // 순서: ① Kakao Mobility (직접) → ② Kakao Mobility (corsproxy) → ③ OSRM 폴백
 
-async function calcDistance() {
-  const originVal = document.getElementById('origin').value.trim();
-  const destVal   = document.getElementById('destination').value.trim();
-  if (!originVal) { showDistMsg('error', '출발지를 입력해주세요.'); return; }
-  if (!destVal)   { showDistMsg('error', '목적지를 입력해주세요.'); return; }
-
-  showDistMsg('loading', '⏳ 위치 조회 및 경로 계산 중…');
-
-  try {
-    // ── 좌표 조회 (Kakao Local REST API + SDK) ────────────────────────────
-    const origin = await resolveCoord('origin', originVal);
-    const dest   = await resolveCoord('destination', destVal);
-
-    const wps = [];
-    for (let i = 1; i <= waypointCount; i++) {
-      const el = document.getElementById(`wp_${i}`);
-      if (el?.value.trim()) {
-        const c = await resolveCoord(`wp_${i}`, el.value.trim());
-        wps.push({ ...c, name: el.value.trim() });
-      }
-    }
-
-    const allPts   = [origin, ...wps, dest];
-    const allNames = [originVal, ...wps.map(w => w.name), destVal];
-
-    // ── ① Kakao Mobility Directions API ──────────────────────────────────
-    let distKm = null, durMin = null, routeGeo = null, routeSource = '';
-
-    const wpStr  = wps.map(w => `${w.lon},${w.lat}`).join('|');
-    const mobUrl = `https://apis-navi.kakaomobility.com/v1/directions`
-                 + `?origin=${origin.lon},${origin.lat}`
-                 + `&destination=${dest.lon},${dest.lat}`
-                 + `&summary=false`
-                 + (wpStr ? `&waypoints=${encodeURIComponent(wpStr)}` : '');
-    const mobHdr = { 'Authorization': `KakaoAK ${KAKAO_REST}` };
-
-    for (const url of [mobUrl, `https://corsproxy.io/?${encodeURIComponent(mobUrl)}`]) {
-      try {
-        const res = await Promise.race([
-          fetch(url, { headers: mobHdr }),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000))
-        ]);
-        if (!res.ok) continue;
-        const json = await res.json();
-        const rt   = json?.routes?.[0];
-        if (rt?.result_code !== 0) continue;
-        distKm      = (rt.summary.distance / 1000).toFixed(1);
-        durMin      = Math.round(rt.summary.duration / 60000);
-        routeSource = 'kakao';
-        // vertexes → GeoJSON 형태로 변환
-        const coords = [];
-        (rt.sections || []).forEach(sec =>
-          (sec.roads || []).forEach(road => {
-            const v = road.vertexes || [];
-            for (let i = 0; i < v.length - 1; i += 2)
-              coords.push([v[i], v[i + 1]]); // [lon, lat]
-          })
-        );
-        routeGeo = coords;
-        break;
-      } catch { /* 다음 시도 */ }
-    }
-
-    // ── ② OSRM 폴백 ──────────────────────────────────────────────────────
-    if (!distKm) {
-      const coordStr = allPts.map(c => `${c.lon},${c.lat}`).join(';');
-      const res = await Promise.race([
-        fetch(`https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`),
-        new Promise((_, rej) => setTimeout(() => rej(new Error('OSRM 응답 없음')), 10000))
-      ]);
-      if (!res.ok) throw new Error('경로 계산 실패. 주소를 확인해주세요.');
-      const data = await res.json();
-      if (data.code !== 'Ok' || !data.routes?.length)
-        throw new Error('경로를 찾을 수 없습니다. 입력 주소를 확인해주세요.');
-      const rt    = data.routes[0];
-      distKm      = (rt.distance / 1000).toFixed(1);
-      durMin      = Math.round(rt.duration / 60);
-      routeGeo    = rt.geometry.coordinates; // [[lon,lat],...]
-      routeSource = 'osrm';
-    }
-
-    // ── 지도에 경로 그리기 ────────────────────────────────────────────────
-    if (kakaoMap) drawRoute(routeGeo, allPts, allNames);
-
-    // ── 카카오맵 자동차 길찾기 링크 ──────────────────────────────────────
-    const naviUrl = buildKakaoNaviUrl(allPts, allNames);
-    const srcNote = routeSource === 'kakao' ? '카카오 경로' : 'OSRM 경로';
-
-    const wpText = wps.length ? ` · 경유지 ${wps.length}개` : '';
-    document.getElementById('distance').value = distKm;
-    showDistMsg('success',
-      `✅ ${srcNote} 계산 완료 — <strong>${distKm} km</strong>${wpText} | 예상 소요 ${durMin}분 &nbsp;`
-      + `<a href="${naviUrl}" target="_blank" rel="noopener"
-           style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;
-                  background:#fee500;color:#3c1e1e;border-radius:6px;font-size:12px;
-                  font-weight:700;text-decoration:none;vertical-align:middle;">
-           🗺️ 카카오맵 길찾기
-         </a>`
-    );
-    calc();
-  } catch(err) {
-    showDistMsg('error', `❌ ${err.message}`);
-  }
-}
-
-// 카카오맵 자동차 길찾기 URL 생성
-function buildKakaoNaviUrl(pts, names) {
-  // https://map.kakao.com/link/by/car/{이름},{위도},{경도}/...
-  const segments = pts.map((p, i) =>
-    `${encodeURIComponent(names[i] || `지점${i+1}`)},${p.lat},${p.lon}`
-  ).join('/');
-  return `https://map.kakao.com/link/by/car/${segments}`;
-}
-
-// 길찾기 패널 업데이트 (출발지+도착지 좌표가 모두 있을 때 표시)
-function updateNaviPanel() {
-  const o = coordsMap['origin'];
-  const d = coordsMap['destination'];
-  const panel = document.getElementById('naviPanel');
-  if (!panel) return;
-
-  if (!o || !d) {
-    panel.classList.add('hidden');
-    return;
-  }
-
-  const oName = document.getElementById('origin')?.value || '출발지';
-  const dName = document.getElementById('destination')?.value || '도착지';
-
-  // 카카오맵 자동차 길찾기 URL
-  const kakaoUrl = `https://map.kakao.com/link/by/car/${encodeURIComponent(oName)},${o.lat},${o.lon}/${encodeURIComponent(dName)},${d.lat},${d.lon}`;
-
-  // 네이버 지도 길찾기 URL
-  const naverUrl = `https://map.naver.com/v5/directions/-/${encodeURIComponent(oName)},${o.lon},${o.lat},PLACE_POI/-/${encodeURIComponent(dName)},${d.lon},${d.lat},PLACE_POI/-/car`;
-
-  const btnKakao = document.getElementById('btnKakaoNavi');
-  const btnNaver = document.getElementById('btnNaverNavi');
-  if (btnKakao) btnKakao.href = kakaoUrl;
-  if (btnNaver) btnNaver.href = naverUrl;
-
-  panel.classList.remove('hidden');
-}
-
-// ─── 지도에 경로 그리기 (OSRM GeoJSON → 카카오 폴리라인) ─────────────────────
-
-function drawRoute(geoCoords, allCoords, names) {
-  if (!kakaoMap) return;
-
-  // 기존 경로·마커 초기화
-  if (routePolyline) { routePolyline.setMap(null); routePolyline = null; }
-  Object.values(markerInstances).forEach(m => m.setMap(null));
-  for (const k in markerInstances) delete markerInstances[k];
-
-  // OSRM GeoJSON: [[lon, lat], …] → Kakao LatLng[]
-  const path = geoCoords.map(([lon, lat]) => new kakao.maps.LatLng(lat, lon));
-  if (path.length > 1) {
-    routePolyline = new kakao.maps.Polyline({
-      path,
-      strokeWeight: 6,
-      strokeColor: '#1e40af',
-      strokeOpacity: 0.85,
-      strokeStyle: 'solid',
-    });
-    routePolyline.setMap(kakaoMap);
-  }
-
-  // 마커 + 인포윈도우
-  const bounds = new kakao.maps.LatLngBounds();
-  allCoords.forEach((coord, i) => {
-    const latlng  = new kakao.maps.LatLng(coord.lat, coord.lon);
-    bounds.extend(latlng);
-    const isFirst = i === 0, isLast = i === allCoords.length - 1;
-    const label   = isFirst ? '출' : isLast ? '착' : `경${i}`;
-    const marker  = new kakao.maps.Marker({ position: latlng, title: names[i] || '' });
-    marker.setMap(kakaoMap);
-    markerInstances[isFirst ? 'origin' : isLast ? 'destination' : `wp_${i}`] = marker;
-    const iw = new kakao.maps.InfoWindow({
-      content: `<div style="padding:5px 10px;font-size:12px;font-weight:600;">[${label}] ${esc(names[i] || '')}</div>`,
-      removable: true
-    });
-    iw.open(kakaoMap, marker);
-    kakao.maps.event.addListener(marker, 'click', () => iw.open(kakaoMap, marker));
-  });
-  kakaoMap.setBounds(bounds, 60);
-}
-
-function showDistMsg(type, html) {
-  const el = document.getElementById('distanceMsg');
-  el.classList.remove('hidden','alert-green','alert-red','alert-blue');
-  el.classList.add(type === 'success' ? 'alert-green' : type === 'error' ? 'alert-red' : 'alert-blue');
-  el.innerHTML = html;
-}
 
 // ─── 경유지 ──────────────────────────────────────────────────────────────────
 
@@ -1044,7 +691,7 @@ function addWaypoint() {
   div.className = 'route-row';
   div.innerHTML = `
     <div class="route-connector">
-      <div class="route-dot dot-blue" style="font-size:11px;">경${n}</div>
+      <div class="route-dot dot-blue" style="font-size:9px;">경유지</div>
       <div class="route-line"></div>
     </div>
     <div class="addr-wrap">
@@ -1065,8 +712,6 @@ function addWaypoint() {
 }
 
 function removeWaypoint(n) {
-  if (markerInstances[`wp_${n}`]) { markerInstances[`wp_${n}`].setMap(null); delete markerInstances[`wp_${n}`]; }
-  delete coordsMap[`wp_${n}`];
   document.getElementById(`wp_wrap_${n}`)?.remove();
   const rows = document.querySelectorAll('#waypointContainer .route-row');
   waypointCount = rows.length;
@@ -1085,13 +730,11 @@ function removeWaypoint(n) {
     const btns = row.querySelectorAll('button');
     if(btns[0]) btns[0].onclick = () => openPostcode(newId);
     if(btns[1]) btns[1].onclick = () => removeWaypoint(num);
-    if(coordsMap[oldId]) { coordsMap[newId] = coordsMap[oldId]; delete coordsMap[oldId]; }
-    if(markerInstances[oldId]) { markerInstances[newId] = markerInstances[oldId]; delete markerInstances[oldId]; }
   });
   document.getElementById('btnAddWaypoint').style.display = waypointCount >= 3 ? 'none' : '';
 }
 
-// ─── 오피넷 유가 조회 (출발일 기준) ──────────────────────────────────────────
+// ─── 오피넷 유가 조회 (출발일 기준, 최근 7일만 지원) ────────────────────────
 
 async function fetchOpinetPrice() {
   const ft = FUEL_TYPES[document.getElementById('fuelType').value];
@@ -1103,7 +746,25 @@ async function fetchOpinetPrice() {
   const today     = new Date().toISOString().slice(0, 10);
   const targetDt  = (departVal || today).replace(/-/g, ''); // YYYYMMDD
 
+  // 오피넷 API는 최근 7일만 제공 → 7일 초과 여부 확인
+  const todayDt   = today.replace(/-/g, '');
+  const diffDays  = Math.floor((parseInt(todayDt) - parseInt(targetDt)) / 1);
+  // 날짜 차이를 정확히 계산 (밀리초 기준)
+  const msPerDay  = 86400000;
+  const targetMs  = new Date(departVal || today).getTime();
+  const todayMs   = new Date(today).getTime();
+  const daysDiff  = Math.floor((todayMs - targetMs) / msPerDay);
+
   const lbl = document.getElementById('opinetDateLabel');
+
+  // 출발일이 7일 초과 → 안내 문구 표시
+  if (daysDiff > 7) {
+    lbl.innerHTML = `최근 7일 이전 날짜는 오피넷 API로 조회할 수 없습니다. `
+      + `<a href="https://www.opinet.co.kr/" target="_blank" rel="noopener" `
+      + `style="color:#1e40af;font-weight:600;text-decoration:underline;">오피넷에서 직접 조회</a>하여 입력해주세요.`;
+    return;
+  }
+
   lbl.textContent = '조회 중…';
 
   async function opinetFetch(url) {
@@ -1113,50 +774,57 @@ async function fetchOpinetPrice() {
   }
 
   try {
+    // avgRecentPrice.do: 전일 기준 최근 7일 일별 전국 평균가 (prodcd 지정)
+    const url  = `https://www.opinet.co.kr/api/avgRecentPrice.do`
+               + `?out=json&code=${OPINET_KEY}&prodcd=${ft.opinetCode}`;
+    const json = await opinetFetch(url);
+    const list = json?.RESULT?.OIL || [];
+
     let price = null, tradeDt = '', prodNm = ft.label;
 
-    // ① 최근 한 달 일별 가격 목록 → 출발일 또는 직전 영업일 가격 선택
-    try {
-      const url  = `https://www.opinet.co.kr/api/avgRecentMonthPriceList.do`
-                 + `?out=json&code=${OPINET_KEY}&prodcd=${ft.opinetCode}`;
-      const json = await opinetFetch(url);
-      const list = json?.RESULT?.OIL || [];
-      if (list.length) {
-        // 출발일 이하 날짜 중 가장 가까운 항목 (주말·공휴일 자동 처리)
-        const sorted = list
-          .filter(o => o.TRADE_DT && o.TRADE_DT <= targetDt)
-          .sort((a, b) => b.TRADE_DT.localeCompare(a.TRADE_DT));
-        const item = sorted[0];
-        if (item?.PRICE) {
-          price   = Math.round(parseFloat(item.PRICE));
-          tradeDt = item.TRADE_DT;
-          prodNm  = item.PRODNM || ft.label;
-        }
+    if (list.length) {
+      // DATE 필드 기준, 하이픈 제거 후 출발일 이하 가장 가까운 날짜 선택
+      const norm = s => (s || '').replace(/-/g, '');
+      const sorted = list
+        .filter(o => (o.DATE || o.TRADE_DT) && norm(o.DATE || o.TRADE_DT) <= targetDt)
+        .sort((a, b) => norm(b.DATE || b.TRADE_DT).localeCompare(norm(a.DATE || a.TRADE_DT)));
+      const item = sorted[0];
+      if (item?.PRICE) {
+        price   = Math.round(parseFloat(item.PRICE));
+        tradeDt = norm(item.DATE || item.TRADE_DT);
+        prodNm  = item.PRODNM || item.PRODCD || ft.label;
       }
-    } catch { /* 폴백으로 */ }
-
-    // ② 폴백: 현재 전국 평균가 (목록 조회 실패 또는 한 달 이전 출발일)
-    if (!price) {
-      const url  = `https://www.opinet.co.kr/api/avgAllPrice.do?out=json&code=${OPINET_KEY}`;
-      const json = await opinetFetch(url);
-      const item = json?.RESULT?.OIL?.find(o => o.PRODCD === ft.opinetCode);
-      if (!item) throw new Error('해당 유종 데이터 없음');
-      price   = Math.round(parseFloat(item.PRICE));
-      tradeDt = item.TRADE_DT || today.replace(/-/g, '');
-      prodNm  = item.PRODNM  || ft.label;
     }
+
+    // 목록에서 못 찾으면 (출발일이 API 범위 내이나 데이터 없는 경우) → 가장 최근 항목 사용
+    if (!price && list.length) {
+      const norm = s => (s || '').replace(/-/g, '');
+      const sorted = [...list].sort((a, b) =>
+        norm(b.DATE || b.TRADE_DT).localeCompare(norm(a.DATE || a.TRADE_DT)));
+      const item = sorted[0];
+      if (item?.PRICE) {
+        price   = Math.round(parseFloat(item.PRICE));
+        tradeDt = norm(item.DATE || item.TRADE_DT);
+        prodNm  = item.PRODNM || item.PRODCD || ft.label;
+      }
+    }
+
+    if (!price) throw new Error('유가 데이터를 가져올 수 없습니다.');
 
     document.getElementById('fuelPrice').value = price;
 
     const fmtDate    = tradeDt.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
     const isMismatch = departVal && fmtDate !== departVal;
-    lbl.textContent  = isMismatch
+    lbl.innerHTML = (isMismatch
       ? `오피넷 ${fmtDate} 기준 | ${prodNm} ${fmt(price)}원/L (출발일 ${departVal} 주말·공휴일 → 직전 영업일 적용)`
-      : `오피넷 ${fmtDate} 기준 | ${prodNm} ${fmt(price)}원/L`;
+      : `오피넷 ${fmtDate} 기준 | ${prodNm} ${fmt(price)}원/L`)
+      + ` &nbsp;<a href="https://www.opinet.co.kr/" target="_blank" rel="noopener" `
+      + `style="color:#1e40af;text-decoration:underline;">오피넷 바로가기</a>`;
     calc();
   } catch(err) {
-    lbl.textContent = '';
-    alert(`오피넷 조회 실패: ${err.message}\n유가를 직접 입력해주세요.`);
+    lbl.innerHTML = `조회 실패: ${err.message} — `
+      + `<a href="https://www.opinet.co.kr/" target="_blank" rel="noopener" `
+      + `style="color:#1e40af;text-decoration:underline;">오피넷에서 직접 조회</a>하여 입력해주세요.`;
   }
 }
 
@@ -1283,10 +951,6 @@ function resetForm() {
   waypointCount = 0;
   document.getElementById('btnAddWaypoint').style.display = '';
 
-  Object.keys(coordsMap).forEach(k => delete coordsMap[k]);
-  Object.values(markerInstances).forEach(m => m.setMap(null));
-  for (const k in markerInstances) delete markerInstances[k];
-  if (routePolyline) { routePolyline.setMap(null); routePolyline = null; }
 
   ['origin','destination'].forEach(id => { hideTag(id); hideDropdown(id); });
   document.getElementById('distanceMsg').classList.add('hidden');
@@ -1304,6 +968,286 @@ function resetForm() {
   updateDays();
   calc();
 }
+function openRegs() {
+  document.getElementById('regsModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeRegs() {
+  document.getElementById('regsModal').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeRegs(); });
 </script>
+
+<!-- 여비규정 모달 -->
+<div id="regsModal" class="hidden fixed inset-0 z-50 flex items-start justify-center no-print" style="background:rgba(0,0,0,0.5);padding:20px;overflow-y:auto;">
+  <div style="background:white;border-radius:14px;width:100%;max-width:820px;padding:32px 36px;position:relative;margin:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;border-bottom:2px solid #1e40af;padding-bottom:12px;">
+      <div>
+        <div style="font-size:18px;font-weight:700;color:#1e40af;">대교홀딩스 여비규정</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:2px;">개정일자: 2026.01.01</div>
+      </div>
+      <button onclick="closeRegs()" style="font-size:22px;color:#9ca3af;background:none;border:none;cursor:pointer;line-height:1;">✕</button>
+    </div>
+
+    <div style="font-size:13px;line-height:1.8;color:#1f2937;">
+
+      <!-- 제1장 총칙 -->
+      <h2 style="font-size:14px;font-weight:700;color:#1e40af;margin:20px 0 8px;border-left:4px solid #1e40af;padding-left:10px;">제1장 총칙</h2>
+      <p><strong>1. 목적</strong><br>본 규정은 주식회사 대교홀딩스(이하 "회사") 임직원이 회사의 명을 받아 출장 시 쓰이는 여비의 지급기준을 정하여 업무를 효율화하기 위함을 목적으로 한다.</p>
+      <p style="margin-top:10px;"><strong>2. 여비의 정의</strong><br>출장 시 소요되는 교통비, 숙박비, 일비 등 비용을 계산한 금액을 말하며, 일비는 현지 교통비와 식대 등을 포함한다.</p>
+      <p style="margin-top:10px;"><strong>3. 여비 구분</strong><br>여비는 국내출장여비, 해외출장여비로 구분한다.</p>
+      <p style="margin-top:10px;"><strong>4. 지급기준</strong><br>여비는 순로에 따라 계산한다. 업무상 부득이한 경우 소속 부서장이 인정한 경로에 따라 지급할 수 있다.</p>
+      <p style="margin-top:10px;"><strong>5. 절차</strong><br>출장자는 회사가 지정한 양식에 의거하여 소속부서 전결권자의 결재를 득한 후 출장 전 여비를 지급 받는다.</p>
+      <p style="margin-top:10px;"><strong>6. 여비의 제한</strong></p>
+      <ul style="margin-left:16px;list-style:disc;">
+        <li>회사가 교통편·숙박 등을 별도 부담하는 경우 해당 여비를 지급하지 않는다.</li>
+        <li>개인 사유로 우회·체류 시 해당 여비 미지급.</li>
+        <li>타 기관으로부터 여비 일부를 지급받은 경우 차액만 지급.</li>
+        <li>타지 경조사 출장 대상자는 차상급자 1인 포함 2인 이내.</li>
+      </ul>
+      <p style="margin-top:10px;"><strong>7. 휴일 출장</strong><br>휴일 포함 출장 시 평일 출장 여비 지급기준을 적용한다.</p>
+      <p style="margin-top:10px;"><strong>8. 신분 변경</strong><br>출장기간 중 신분 변경 시 발령일부터 변경된 신분 기준으로 지급·정산한다.</p>
+
+      <!-- 제2장 국내출장여비 -->
+      <h2 style="font-size:14px;font-weight:700;color:#1e40af;margin:24px 0 8px;border-left:4px solid #1e40af;padding-left:10px;">제2장 국내출장여비</h2>
+      <p><strong>10. 출장의 정의</strong></p>
+      <ul style="margin-left:16px;list-style:disc;">
+        <li>근무지역에서 100km 이상 이동하거나 1박 이상 근무하는 경우.</li>
+        <li>100km 미만이라도 1일 업무 시간이 소요되는 경우 당일출장으로 구분.</li>
+      </ul>
+      <p style="margin-top:10px;"><strong>11. 정산</strong></p>
+      <ul style="margin-left:16px;list-style:disc;">
+        <li>국내출장여비는 교통비·숙박비·일비로 구분하여 [별지1]에 따라 지급.</li>
+        <li>교통비: 유류비·통행료·주차료·차표 등 포함. 자기차량 이용 시 회사 규정 계산 방식 적용.</li>
+        <li>숙박비는 야수, 일비는 일수 기준으로 지급. 실비정산 원칙, 직급별 상한선 적용.</li>
+        <li>일비는 출장지역 내 교통비·식대 등 일체 포함.</li>
+        <li>출장 회의식대는 대표이사 사전 승인 후 사용.</li>
+      </ul>
+      <p style="margin-top:10px;"><strong>12. 당일출장</strong><br>교통비·일비를 지급한다.</p>
+      <p style="margin-top:10px;"><strong>13. 수행 시 여비</strong><br>임원 수행 출장 시 숙박비를 임원과 동일하게 지급 (수행원 1인, 업무상 직접 보좌 한정).</p>
+      <p style="margin-top:10px;"><strong>14. 장기출장·파견 감액</strong><br>동일지역 장기 체류 시: 1~15일 정액 지급 → 16일~30일 정액의 80% → 30일 초과 시 현지 상황에 따라 조정.</p>
+
+      <!-- 별지1: 국내출장여비 표 -->
+      <h3 style="font-size:13px;font-weight:700;margin:20px 0 8px;color:#374151;">[별지1] 국내출장여비 <span style="font-size:11px;font-weight:400;color:#6b7280;">(단위: 원)</span></h3>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr style="background:#1e40af;color:white;">
+              <th style="padding:8px 10px;border:1px solid #1e3a8a;text-align:center;white-space:nowrap;">구분/직급</th>
+              <th style="padding:8px 10px;border:1px solid #1e3a8a;text-align:center;">교통비</th>
+              <th style="padding:8px 10px;border:1px solid #1e3a8a;text-align:center;">숙박비</th>
+              <th style="padding:8px 10px;border:1px solid #1e3a8a;text-align:center;">일비</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:#eff6ff;">
+              <td style="padding:8px 10px;border:1px solid #bfdbfe;font-weight:600;white-space:nowrap;">회장</td>
+              <td style="padding:8px 10px;border:1px solid #bfdbfe;">항공 Business / KTX / 새마을호 특실</td>
+              <td style="padding:8px 10px;border:1px solid #bfdbfe;text-align:center;">실비</td>
+              <td style="padding:8px 10px;border:1px solid #bfdbfe;text-align:center;font-weight:600;">200,000</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;border:1px solid #e5e7eb;font-weight:600;white-space:nowrap;">대표 / COO</td>
+              <td style="padding:8px 10px;border:1px solid #e5e7eb;">항공 Business / KTX / 새마을호 특실</td>
+              <td style="padding:8px 10px;border:1px solid #e5e7eb;text-align:center;">실비</td>
+              <td style="padding:8px 10px;border:1px solid #e5e7eb;text-align:center;font-weight:600;">100,000</td>
+            </tr>
+            <tr style="background:#eff6ff;">
+              <td style="padding:8px 10px;border:1px solid #bfdbfe;font-weight:600;">임원</td>
+              <td style="padding:8px 10px;border:1px solid #bfdbfe;">항공 / KTX / 새마을호 특실</td>
+              <td style="padding:8px 10px;border:1px solid #bfdbfe;text-align:center;">실비</td>
+              <td style="padding:8px 10px;border:1px solid #bfdbfe;text-align:center;font-weight:600;">80,000</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;border:1px solid #e5e7eb;font-weight:600;">직원</td>
+              <td style="padding:8px 10px;border:1px solid #e5e7eb;">
+                <strong>대중교통:</strong> KTX·새마을호·우등고속 실비 (긴급 시 항공 가능)<br>
+                <strong>자기차량:</strong> 유류비×1.5 + 통행료 전액 + 주차비 전액
+              </td>
+              <td style="padding:8px 10px;border:1px solid #e5e7eb;text-align:center;">실비<br><span style="color:#6b7280;">(상한 100,000)</span></td>
+              <td style="padding:8px 10px;border:1px solid #e5e7eb;text-align:center;font-weight:600;">50,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#6b7280;line-height:1.7;">
+        ※ 일비는 출장지역 내 교통비·식대 등 일체 포함<br>
+        ※ 자차 유류비 = 운행거리(km) × 유가 ÷ 연비 × 1.5 (감가상각 반영)<br>
+        ※ 여행거리: 출발지-출장지 간 한국도로공사 또는 민간 거리계산 결과 (경유지 포함)<br>
+        ※ 유가정보: 출장시작일 기준 Opinet 고시 유가. 전기차는 환경부 무공해차 통합누리집, 수소차는 산업통상자원부 수소유통정보시스템 적용<br>
+        ※ 숙박비 실비정산 원칙, 직급별 상한 초과 불가 / 직원 숙박은 2인1실 원칙 (남녀 제외)
+      </div>
+
+      <!-- 별지1: 연비표 -->
+      <h3 style="font-size:13px;font-weight:700;margin:20px 0 8px;color:#374151;">[승용차 유종별 연비/전비 기준표]</h3>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;text-align:center;">
+          <thead>
+            <tr style="background:#374151;color:white;">
+              <th style="padding:7px 8px;border:1px solid #4b5563;">구분</th>
+              <th style="padding:7px 8px;border:1px solid #4b5563;">휘발유</th>
+              <th style="padding:7px 8px;border:1px solid #4b5563;">경유</th>
+              <th style="padding:7px 8px;border:1px solid #4b5563;">LPG</th>
+              <th style="padding:7px 8px;border:1px solid #4b5563;">하이브리드</th>
+              <th style="padding:7px 8px;border:1px solid #4b5563;">플러그인<br>하이브리드</th>
+              <th style="padding:7px 8px;border:1px solid #4b5563;">전기</th>
+              <th style="padding:7px 8px;border:1px solid #4b5563;">수소</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:#f9fafb;">
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;font-weight:600;">연비(km/L)</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">11.97</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">12.52</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">8.83</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">15.37</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">10.61</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+            </tr>
+            <tr>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;font-weight:600;">전비(km/kWh)</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">2.84</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">5.22</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+            </tr>
+            <tr style="background:#f9fafb;">
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;font-weight:600;">연비(km/kg)</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">94.9</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 제3장 해외출장여비 -->
+      <h2 style="font-size:14px;font-weight:700;color:#1e40af;margin:28px 0 8px;border-left:4px solid #1e40af;padding-left:10px;">제3장 해외출장여비</h2>
+      <p><strong>출장지 구분</strong></p>
+      <ul style="margin-left:16px;list-style:disc;">
+        <li><strong>갑지:</strong> 북미주, 유럽, 홍콩, 오세아니아 (일본은 별도)</li>
+        <li><strong>을지:</strong> 기타 지역 (갑지 상한 초과 불가)</li>
+      </ul>
+      <p style="margin-top:10px;"><strong>장기출장:</strong> 30일 이상 시 여비정액의 30% 지급. 60일 이상은 현지 상황에 따라 조정.</p>
+
+      <h3 style="font-size:13px;font-weight:700;margin:16px 0 8px;color:#374151;">[별지2] 해외출장여비</h3>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:11.5px;text-align:center;">
+          <thead>
+            <tr style="background:#1e40af;color:white;">
+              <th rowspan="2" style="padding:7px 8px;border:1px solid #1e3a8a;">구분/직급</th>
+              <th rowspan="2" style="padding:7px 8px;border:1px solid #1e3a8a;">교통비</th>
+              <th colspan="2" style="padding:7px 8px;border:1px solid #1e3a8a;">갑지 (미주·유럽, U$)</th>
+              <th colspan="2" style="padding:7px 8px;border:1px solid #1e3a8a;">일본 (¥)</th>
+            </tr>
+            <tr style="background:#1e40af;color:white;">
+              <th style="padding:6px 8px;border:1px solid #1e3a8a;">숙박비</th>
+              <th style="padding:6px 8px;border:1px solid #1e3a8a;">일비</th>
+              <th style="padding:6px 8px;border:1px solid #1e3a8a;">숙박비</th>
+              <th style="padding:6px 8px;border:1px solid #1e3a8a;">일비</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:#eff6ff;">
+              <td style="padding:7px 8px;border:1px solid #bfdbfe;font-weight:600;">회장</td>
+              <td style="padding:7px 8px;border:1px solid #bfdbfe;">First Class</td>
+              <td colspan="2" style="padding:7px 8px;border:1px solid #bfdbfe;">1,500/1일</td>
+              <td colspan="2" style="padding:7px 8px;border:1px solid #bfdbfe;">150,000/1일</td>
+            </tr>
+            <tr>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;font-weight:600;">대표/CEO</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">First/Business</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">실비</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">200</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">실비</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">30,000</td>
+            </tr>
+            <tr style="background:#eff6ff;">
+              <td style="padding:7px 8px;border:1px solid #bfdbfe;font-weight:600;">임원</td>
+              <td style="padding:7px 8px;border:1px solid #bfdbfe;">Business/Economy</td>
+              <td style="padding:7px 8px;border:1px solid #bfdbfe;">실비 (상한 200)</td>
+              <td style="padding:7px 8px;border:1px solid #bfdbfe;">150</td>
+              <td style="padding:7px 8px;border:1px solid #bfdbfe;">실비 (상한 180)</td>
+              <td style="padding:7px 8px;border:1px solid #bfdbfe;">20,000</td>
+            </tr>
+            <tr>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;font-weight:600;">직원</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">Economy Class</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">실비</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">100</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">2인1실</td>
+              <td style="padding:7px 8px;border:1px solid #e5e7eb;">12,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#6b7280;line-height:1.7;">
+        ※ 교통비(항공): 비행시간 3시간 미만을 단거리로 구분<br>
+        ※ 연수·교육·산업시찰 시 숙박비는 단체 실비정산 원칙<br>
+        ※ 일비는 식대·팁·통신비·현지 교통비 등 포함<br>
+        ※ 을지 여비는 출장사안별 품의 결재 내용으로 하되 갑지 상한 초과 불가
+      </div>
+
+      <!-- 제4장 교육출장여비 -->
+      <h2 style="font-size:14px;font-weight:700;color:#1e40af;margin:28px 0 8px;border-left:4px solid #1e40af;padding-left:10px;">제4장 교육출장여비</h2>
+      <p>회사 주관 소집 출장에 적용 (워크숍·MT 제외). 해외 교육출장은 일반 해외출장에 준한다.</p>
+      <h3 style="font-size:13px;font-weight:700;margin:12px 0 8px;color:#374151;">[별지3] 교육출장여비</h3>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;text-align:center;">
+          <thead>
+            <tr style="background:#374151;color:white;">
+              <th style="padding:7px 12px;border:1px solid #4b5563;">구분</th>
+              <th style="padding:7px 12px;border:1px solid #4b5563;">교통비</th>
+              <th style="padding:7px 12px;border:1px solid #4b5563;">숙박비</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:#f9fafb;">
+              <td style="padding:7px 12px;border:1px solid #e5e7eb;font-weight:600;">합숙교육 — 개별숙박</td>
+              <td style="padding:7px 12px;border:1px solid #e5e7eb;">국내출장기준 적용</td>
+              <td style="padding:7px 12px;border:1px solid #e5e7eb;">국내출장기준 적용</td>
+            </tr>
+            <tr>
+              <td style="padding:7px 12px;border:1px solid #e5e7eb;font-weight:600;">합숙교육 — 숙박제공</td>
+              <td style="padding:7px 12px;border:1px solid #e5e7eb;">국내출장기준 적용</td>
+              <td style="padding:7px 12px;border:1px solid #e5e7eb;color:#6b7280;">무</td>
+            </tr>
+            <tr style="background:#f9fafb;">
+              <td style="padding:7px 12px;border:1px solid #e5e7eb;font-weight:600;">당일교육/출퇴근교육</td>
+              <td style="padding:7px 12px;border:1px solid #e5e7eb;">국내출장기준 적용</td>
+              <td style="padding:7px 12px;border:1px solid #e5e7eb;color:#6b7280;">무</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 제5장 부칙 -->
+      <h2 style="font-size:14px;font-weight:700;color:#1e40af;margin:28px 0 8px;border-left:4px solid #1e40af;padding-left:10px;">제5장 부칙</h2>
+      <ul style="font-size:12px;color:#6b7280;line-height:2;">
+        <li>2003년 7월 10일 최초 시행</li>
+        <li>2006년 1월 1일 개정</li>
+        <li>2007년 10월 10일 개정</li>
+        <li>2008년 11월 24일 개정</li>
+        <li>2010년 7월 20일 개정</li>
+        <li><strong style="color:#1f2937;">2026년 1월 1일 개정 (현행)</strong></li>
+      </ul>
+
+    </div>
+
+    <div style="text-align:center;margin-top:28px;">
+      <button onclick="closeRegs()" style="padding:10px 32px;background:#1e40af;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;">닫기</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
