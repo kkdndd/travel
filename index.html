@@ -978,270 +978,374 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeRegs();
 
 <!-- 여비규정 모달 -->
 <div id="regsModal" class="hidden fixed inset-0 z-50 flex items-start justify-center no-print" style="background:rgba(0,0,0,0.5);padding:20px;overflow-y:auto;">
-  <div style="background:white;border-radius:14px;width:100%;max-width:820px;padding:32px 36px;position:relative;margin:auto;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;border-bottom:2px solid #1e40af;padding-bottom:12px;">
+  <div style="background:white;border-radius:14px;width:100%;max-width:860px;padding:32px 40px;position:relative;margin:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;border-bottom:2px solid #1e3a8a;padding-bottom:12px;">
       <div>
-        <div style="font-size:18px;font-weight:700;color:#1e40af;">대교홀딩스 여비규정</div>
-        <div style="font-size:12px;color:#6b7280;margin-top:2px;">개정일자: 2026.01.01</div>
+        <div style="font-size:17px;font-weight:700;color:#1e3a8a;">대교홀딩스 여비규정</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px;">개정일자: 2026.01.01</div>
       </div>
       <button onclick="closeRegs()" style="font-size:22px;color:#9ca3af;background:none;border:none;cursor:pointer;line-height:1;">✕</button>
     </div>
 
-    <div style="font-size:13px;line-height:1.8;color:#1f2937;">
+    <div style="font-size:13px;line-height:1.85;color:#1f2937;">
 
-      <!-- 제1장 총칙 -->
-      <h2 style="font-size:14px;font-weight:700;color:#1e40af;margin:20px 0 8px;border-left:4px solid #1e40af;padding-left:10px;">제1장 총칙</h2>
-      <p><strong>1. 목적</strong><br>본 규정은 주식회사 대교홀딩스(이하 "회사") 임직원이 회사의 명을 받아 출장 시 쓰이는 여비의 지급기준을 정하여 업무를 효율화하기 위함을 목적으로 한다.</p>
-      <p style="margin-top:10px;"><strong>2. 여비의 정의</strong><br>출장 시 소요되는 교통비, 숙박비, 일비 등 비용을 계산한 금액을 말하며, 일비는 현지 교통비와 식대 등을 포함한다.</p>
-      <p style="margin-top:10px;"><strong>3. 여비 구분</strong><br>여비는 국내출장여비, 해외출장여비로 구분한다.</p>
-      <p style="margin-top:10px;"><strong>4. 지급기준</strong><br>여비는 순로에 따라 계산한다. 업무상 부득이한 경우 소속 부서장이 인정한 경로에 따라 지급할 수 있다.</p>
-      <p style="margin-top:10px;"><strong>5. 절차</strong><br>출장자는 회사가 지정한 양식에 의거하여 소속부서 전결권자의 결재를 득한 후 출장 전 여비를 지급 받는다.</p>
-      <p style="margin-top:10px;"><strong>6. 여비의 제한</strong></p>
-      <ul style="margin-left:16px;list-style:disc;">
-        <li>회사가 교통편·숙박 등을 별도 부담하는 경우 해당 여비를 지급하지 않는다.</li>
-        <li>개인 사유로 우회·체류 시 해당 여비 미지급.</li>
-        <li>타 기관으로부터 여비 일부를 지급받은 경우 차액만 지급.</li>
-        <li>타지 경조사 출장 대상자는 차상급자 1인 포함 2인 이내.</li>
-      </ul>
-      <p style="margin-top:10px;"><strong>7. 휴일 출장</strong><br>휴일 포함 출장 시 평일 출장 여비 지급기준을 적용한다.</p>
-      <p style="margin-top:10px;"><strong>8. 신분 변경</strong><br>출장기간 중 신분 변경 시 발령일부터 변경된 신분 기준으로 지급·정산한다.</p>
+    <!-- 차례 -->
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px;">[차&nbsp;&nbsp;&nbsp;&nbsp;례]</div>
+      <table style="margin:0 auto;font-size:13px;line-height:2.2;">
+        <tr><td style="padding:0 20px;">1.&nbsp;&nbsp;총&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;칙</td></tr>
+        <tr><td style="padding:0 20px;">2.&nbsp;&nbsp;국내출장여비</td></tr>
+        <tr><td style="padding:0 20px;">3.&nbsp;&nbsp;해외출장여비</td></tr>
+        <tr><td style="padding:0 20px;">4.&nbsp;&nbsp;교육출장여비</td></tr>
+        <tr><td style="padding:0 20px;">5.&nbsp;&nbsp;부&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;칙</td></tr>
+      </table>
+    </div>
 
-      <!-- 제2장 국내출장여비 -->
-      <h2 style="font-size:14px;font-weight:700;color:#1e40af;margin:24px 0 8px;border-left:4px solid #1e40af;padding-left:10px;">제2장 국내출장여비</h2>
-      <p><strong>10. 출장의 정의</strong></p>
-      <ul style="margin-left:16px;list-style:disc;">
-        <li>근무지역에서 100km 이상 이동하거나 1박 이상 근무하는 경우.</li>
-        <li>100km 미만이라도 1일 업무 시간이 소요되는 경우 당일출장으로 구분.</li>
-      </ul>
-      <p style="margin-top:10px;"><strong>11. 정산</strong></p>
-      <ul style="margin-left:16px;list-style:disc;">
-        <li>국내출장여비는 교통비·숙박비·일비로 구분하여 [별지1]에 따라 지급.</li>
-        <li>교통비: 유류비·통행료·주차료·차표 등 포함. 자기차량 이용 시 회사 규정 계산 방식 적용.</li>
-        <li>숙박비는 야수, 일비는 일수 기준으로 지급. 실비정산 원칙, 직급별 상한선 적용.</li>
-        <li>일비는 출장지역 내 교통비·식대 등 일체 포함.</li>
-        <li>출장 회의식대는 대표이사 사전 승인 후 사용.</li>
-      </ul>
-      <p style="margin-top:10px;"><strong>12. 당일출장</strong><br>교통비·일비를 지급한다.</p>
-      <p style="margin-top:10px;"><strong>13. 수행 시 여비</strong><br>임원 수행 출장 시 숙박비를 임원과 동일하게 지급 (수행원 1인, 업무상 직접 보좌 한정).</p>
-      <p style="margin-top:10px;"><strong>14. 장기출장·파견 감액</strong><br>동일지역 장기 체류 시: 1~15일 정액 지급 → 16일~30일 정액의 80% → 30일 초과 시 현지 상황에 따라 조정.</p>
+      <!-- ===== 제1장 총칙 ===== -->
+      <div style="font-size:14px;font-weight:700;text-align:center;margin:8px 0 14px;letter-spacing:4px;">제 1 장 총    칙</div>
 
-      <!-- 별지1: 국내출장여비 표 -->
-      <h3 style="font-size:13px;font-weight:700;margin:20px 0 8px;color:#374151;">[별지1] 국내출장여비 <span style="font-size:11px;font-weight:400;color:#6b7280;">(단위: 원)</span></h3>
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:12px;">
-          <thead>
-            <tr style="background:#1e40af;color:white;">
-              <th style="padding:8px 10px;border:1px solid #1e3a8a;text-align:center;white-space:nowrap;">구분/직급</th>
-              <th style="padding:8px 10px;border:1px solid #1e3a8a;text-align:center;">교통비</th>
-              <th style="padding:8px 10px;border:1px solid #1e3a8a;text-align:center;">숙박비</th>
-              <th style="padding:8px 10px;border:1px solid #1e3a8a;text-align:center;">일비</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="background:#eff6ff;">
-              <td style="padding:8px 10px;border:1px solid #bfdbfe;font-weight:600;white-space:nowrap;">회장</td>
-              <td style="padding:8px 10px;border:1px solid #bfdbfe;">항공 Business / KTX / 새마을호 특실</td>
-              <td style="padding:8px 10px;border:1px solid #bfdbfe;text-align:center;">실비</td>
-              <td style="padding:8px 10px;border:1px solid #bfdbfe;text-align:center;font-weight:600;">200,000</td>
-            </tr>
-            <tr>
-              <td style="padding:8px 10px;border:1px solid #e5e7eb;font-weight:600;white-space:nowrap;">대표 / COO</td>
-              <td style="padding:8px 10px;border:1px solid #e5e7eb;">항공 Business / KTX / 새마을호 특실</td>
-              <td style="padding:8px 10px;border:1px solid #e5e7eb;text-align:center;">실비</td>
-              <td style="padding:8px 10px;border:1px solid #e5e7eb;text-align:center;font-weight:600;">100,000</td>
-            </tr>
-            <tr style="background:#eff6ff;">
-              <td style="padding:8px 10px;border:1px solid #bfdbfe;font-weight:600;">임원</td>
-              <td style="padding:8px 10px;border:1px solid #bfdbfe;">항공 / KTX / 새마을호 특실</td>
-              <td style="padding:8px 10px;border:1px solid #bfdbfe;text-align:center;">실비</td>
-              <td style="padding:8px 10px;border:1px solid #bfdbfe;text-align:center;font-weight:600;">80,000</td>
-            </tr>
-            <tr>
-              <td style="padding:8px 10px;border:1px solid #e5e7eb;font-weight:600;">직원</td>
-              <td style="padding:8px 10px;border:1px solid #e5e7eb;">
-                <strong>대중교통:</strong> KTX·새마을호·우등고속 실비 (긴급 시 항공 가능)<br>
-                <strong>자기차량:</strong> 유류비×1.5 + 통행료 전액 + 주차비 전액
-              </td>
-              <td style="padding:8px 10px;border:1px solid #e5e7eb;text-align:center;">실비<br><span style="color:#6b7280;">(상한 100,000)</span></td>
-              <td style="padding:8px 10px;border:1px solid #e5e7eb;text-align:center;font-weight:600;">50,000</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div style="margin-top:8px;font-size:11px;color:#6b7280;line-height:1.7;">
-        ※ 일비는 출장지역 내 교통비·식대 등 일체 포함<br>
-        ※ 자차 유류비 = 운행거리(km) × 유가 ÷ 연비 × 1.5 (감가상각 반영)<br>
-        ※ 여행거리: 출발지-출장지 간 한국도로공사 또는 민간 거리계산 결과 (경유지 포함)<br>
-        ※ 유가정보: 출장시작일 기준 Opinet 고시 유가. 전기차는 환경부 무공해차 통합누리집, 수소차는 산업통상자원부 수소유통정보시스템 적용<br>
-        ※ 숙박비 실비정산 원칙, 직급별 상한 초과 불가 / 직원 숙박은 2인1실 원칙 (남녀 제외)
-      </div>
+      <p style="margin-bottom:10px;"><strong>1. 목적</strong><br>
+      본 규정은 주식회사 대교홀딩스(이하 "회사"라 한다) 임직원이 회사의 명을 받아 출장시 쓰이는 여비의 지급기준을 정하여 업무를 효율화하기 위함을 목적으로 한다.</p>
 
-      <!-- 별지1: 연비표 -->
-      <h3 style="font-size:13px;font-weight:700;margin:20px 0 8px;color:#374151;">[승용차 유종별 연비/전비 기준표]</h3>
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:12px;text-align:center;">
-          <thead>
-            <tr style="background:#374151;color:white;">
-              <th style="padding:7px 8px;border:1px solid #4b5563;">구분</th>
-              <th style="padding:7px 8px;border:1px solid #4b5563;">휘발유</th>
-              <th style="padding:7px 8px;border:1px solid #4b5563;">경유</th>
-              <th style="padding:7px 8px;border:1px solid #4b5563;">LPG</th>
-              <th style="padding:7px 8px;border:1px solid #4b5563;">하이브리드</th>
-              <th style="padding:7px 8px;border:1px solid #4b5563;">플러그인<br>하이브리드</th>
-              <th style="padding:7px 8px;border:1px solid #4b5563;">전기</th>
-              <th style="padding:7px 8px;border:1px solid #4b5563;">수소</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="background:#f9fafb;">
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;font-weight:600;">연비(km/L)</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">11.97</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">12.52</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">8.83</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">15.37</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">10.61</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-            </tr>
-            <tr>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;font-weight:600;">전비(km/kWh)</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">2.84</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">5.22</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-            </tr>
-            <tr style="background:#f9fafb;">
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;font-weight:600;">연비(km/kg)</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;color:#9ca3af;">—</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">94.9</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <p style="margin-bottom:10px;"><strong>2. 여비의 정의</strong><br>
+      본 규정에서 '여비'라 함은 출장시 소요되는 교통비, 숙박비, 일비등 비용을 계산한 금액을 말한다. 이 때 일비는 현지 교통비와 식대 등을 포함한다.</p>
 
-      <!-- 제3장 해외출장여비 -->
-      <h2 style="font-size:14px;font-weight:700;color:#1e40af;margin:28px 0 8px;border-left:4px solid #1e40af;padding-left:10px;">제3장 해외출장여비</h2>
-      <p><strong>출장지 구분</strong></p>
-      <ul style="margin-left:16px;list-style:disc;">
-        <li><strong>갑지:</strong> 북미주, 유럽, 홍콩, 오세아니아 (일본은 별도)</li>
-        <li><strong>을지:</strong> 기타 지역 (갑지 상한 초과 불가)</li>
-      </ul>
-      <p style="margin-top:10px;"><strong>장기출장:</strong> 30일 이상 시 여비정액의 30% 지급. 60일 이상은 현지 상황에 따라 조정.</p>
+      <p style="margin-bottom:10px;"><strong>3. 적용범위</strong><br>
+      &nbsp;&nbsp;본 규정은 임직원의 출장시에 적용한다.</p>
 
-      <h3 style="font-size:13px;font-weight:700;margin:16px 0 8px;color:#374151;">[별지2] 해외출장여비</h3>
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:11.5px;text-align:center;">
-          <thead>
-            <tr style="background:#1e40af;color:white;">
-              <th rowspan="2" style="padding:7px 8px;border:1px solid #1e3a8a;">구분/직급</th>
-              <th rowspan="2" style="padding:7px 8px;border:1px solid #1e3a8a;">교통비</th>
-              <th colspan="2" style="padding:7px 8px;border:1px solid #1e3a8a;">갑지 (미주·유럽, U$)</th>
-              <th colspan="2" style="padding:7px 8px;border:1px solid #1e3a8a;">일본 (¥)</th>
-            </tr>
-            <tr style="background:#1e40af;color:white;">
-              <th style="padding:6px 8px;border:1px solid #1e3a8a;">숙박비</th>
-              <th style="padding:6px 8px;border:1px solid #1e3a8a;">일비</th>
-              <th style="padding:6px 8px;border:1px solid #1e3a8a;">숙박비</th>
-              <th style="padding:6px 8px;border:1px solid #1e3a8a;">일비</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="background:#eff6ff;">
-              <td style="padding:7px 8px;border:1px solid #bfdbfe;font-weight:600;">회장</td>
-              <td style="padding:7px 8px;border:1px solid #bfdbfe;">First Class</td>
-              <td colspan="2" style="padding:7px 8px;border:1px solid #bfdbfe;">1,500/1일</td>
-              <td colspan="2" style="padding:7px 8px;border:1px solid #bfdbfe;">150,000/1일</td>
-            </tr>
-            <tr>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;font-weight:600;">대표/CEO</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">First/Business</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">실비</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">200</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">실비</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">30,000</td>
-            </tr>
-            <tr style="background:#eff6ff;">
-              <td style="padding:7px 8px;border:1px solid #bfdbfe;font-weight:600;">임원</td>
-              <td style="padding:7px 8px;border:1px solid #bfdbfe;">Business/Economy</td>
-              <td style="padding:7px 8px;border:1px solid #bfdbfe;">실비 (상한 200)</td>
-              <td style="padding:7px 8px;border:1px solid #bfdbfe;">150</td>
-              <td style="padding:7px 8px;border:1px solid #bfdbfe;">실비 (상한 180)</td>
-              <td style="padding:7px 8px;border:1px solid #bfdbfe;">20,000</td>
-            </tr>
-            <tr>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;font-weight:600;">직원</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">Economy Class</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">실비</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">100</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">2인1실</td>
-              <td style="padding:7px 8px;border:1px solid #e5e7eb;">12,000</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div style="margin-top:8px;font-size:11px;color:#6b7280;line-height:1.7;">
-        ※ 교통비(항공): 비행시간 3시간 미만을 단거리로 구분<br>
-        ※ 연수·교육·산업시찰 시 숙박비는 단체 실비정산 원칙<br>
-        ※ 일비는 식대·팁·통신비·현지 교통비 등 포함<br>
-        ※ 을지 여비는 출장사안별 품의 결재 내용으로 하되 갑지 상한 초과 불가
-      </div>
+      <p style="margin-bottom:10px;"><strong>4. 여비구분</strong><br>
+      여비는 국내출장여비, 해외출장여비로 구분한다.</p>
 
-      <!-- 제4장 교육출장여비 -->
-      <h2 style="font-size:14px;font-weight:700;color:#1e40af;margin:28px 0 8px;border-left:4px solid #1e40af;padding-left:10px;">제4장 교육출장여비</h2>
-      <p>회사 주관 소집 출장에 적용 (워크숍·MT 제외). 해외 교육출장은 일반 해외출장에 준한다.</p>
-      <h3 style="font-size:13px;font-weight:700;margin:12px 0 8px;color:#374151;">[별지3] 교육출장여비</h3>
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:12px;text-align:center;">
-          <thead>
-            <tr style="background:#374151;color:white;">
-              <th style="padding:7px 12px;border:1px solid #4b5563;">구분</th>
-              <th style="padding:7px 12px;border:1px solid #4b5563;">교통비</th>
-              <th style="padding:7px 12px;border:1px solid #4b5563;">숙박비</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="background:#f9fafb;">
-              <td style="padding:7px 12px;border:1px solid #e5e7eb;font-weight:600;">합숙교육 — 개별숙박</td>
-              <td style="padding:7px 12px;border:1px solid #e5e7eb;">국내출장기준 적용</td>
-              <td style="padding:7px 12px;border:1px solid #e5e7eb;">국내출장기준 적용</td>
-            </tr>
-            <tr>
-              <td style="padding:7px 12px;border:1px solid #e5e7eb;font-weight:600;">합숙교육 — 숙박제공</td>
-              <td style="padding:7px 12px;border:1px solid #e5e7eb;">국내출장기준 적용</td>
-              <td style="padding:7px 12px;border:1px solid #e5e7eb;color:#6b7280;">무</td>
-            </tr>
-            <tr style="background:#f9fafb;">
-              <td style="padding:7px 12px;border:1px solid #e5e7eb;font-weight:600;">당일교육/출퇴근교육</td>
-              <td style="padding:7px 12px;border:1px solid #e5e7eb;">국내출장기준 적용</td>
-              <td style="padding:7px 12px;border:1px solid #e5e7eb;color:#6b7280;">무</td>
-            </tr>
-          </tbody>
-        </table>
+      <p style="margin-bottom:10px;"><strong>5. 지급기준</strong><br>
+      여비는 순로에 따라서 계산한다. 단, 업무의 형편상 또는 부득이한 사유로 순로를 따르지 못할 경우에는 소속 부서장이 인정할 수 있는 경로에 따라서 지급할 수 있다.</p>
+
+      <p style="margin-bottom:10px;"><strong>6. 절 차</strong><br>
+      출장자는 회사가 지정한 양식에 의거하여 소속부서 전결권자의 결재를 득한 후 출장 전에 여비를 지급 받는다.</p>
+
+      <p style="margin-bottom:4px;"><strong>7. 여비의 제한</strong></p>
+      <p style="margin:0 0 4px 8px;">7.1 &nbsp;회사가 교통편, 숙박 등 별도의 경비를 부담하는 경우에는 해당 출장여비를 지급하지 아니한다.</p>
+      <p style="margin:0 0 4px 0;">7.2 &nbsp;&nbsp;여행중 개인의 사유로 우회경유 하거나 체류하는 경우 이에 해당하는 여비는 지급하지 않는다.</p>
+      <p style="margin:0 0 4px 0;">7.3 &nbsp;&nbsp;타기관 또는 타인으로부터 여비의 전부 또는 일부를 지급 받고 출장하는 경우에는 그에 미달하는 차액만을 지급한다.</p>
+      <p style="margin:0 0 14px 0;">7.4 &nbsp;&nbsp;타지에서의 소속직원 경조사로 인한 출장은 다음과 같으며 출장대상자는 차상급자 1인을 포함한 2인 이내로 한다. (직원의 결혼, 사망, 입원 및 직계존비속의 회갑, 사망 등 기타 회사가 필요하다고 인정한 경조사항)</p>
+
+      <p style="margin-bottom:4px;"><strong>8. 상병 등으로 인한 체류</strong></p>
+      <p style="margin:0 0 4px 0;">8.1 &nbsp;출장 상병이나 천재지변으로 일정변경이 불가피할 경우 의사의 진단서 또는 기타 증빙에 의하여 사유가 인정되면 그에 해당하는 여비를 지급한다.</p>
+      <p style="margin:0 0 14px 0;">8.2 &nbsp;본 규정에서 정한 사항을 적용하기 어려운 경우에는 별도로 정한 절차에 의해 수립한 지침에 따라 시행할 수 있다.</p>
+
+      <p style="margin-bottom:10px;"><strong>9. 신분 변경</strong><br>
+      &nbsp;&nbsp;출장기간내에 신분이 변경된 경우에는 그 발령일로부터 변경된 신분에 따라 여비를 지급 또는 정산한다.</p>
+
+      <p style="margin-bottom:16px;"><strong>10. 휴일 출장</strong><br>
+      휴일 당일 출장 또는 출장 기간 중에 휴일이 포함되어 있는 경우에는 평일 출장 여비 지급기준에 의하여 지급함을 원칙으로 한다.</p>
+
+      <!-- ===== 제2장 국내출장여비 ===== -->
+      <div style="font-size:14px;font-weight:700;text-align:center;margin:8px 0 14px;letter-spacing:2px;">제 2 장 국내출장여비</div>
+
+      <p style="margin-bottom:4px;"><strong>10. 출장의 정의</strong></p>
+      <p style="margin:0 0 4px 0;">10.1 &nbsp;출장이라 함은 근무지역에서 100KM 이상의 지역으로 이동 또는 1박 이상 근무하는 경우에 해당한다.</p>
+      <p style="margin:0 0 14px 0;">10.2 &nbsp;단, 근무지역에서 100KM 미만 지역으로 이동하더라도 1일 업무 시간이 소요되는 업무상 이동의 경우는 당일출장으로 구분한다.</p>
+
+      <p style="margin-bottom:4px;"><strong>11. 정산</strong></p>
+      <p style="margin:0 0 4px 0;">11.1 &nbsp;국내출장여비는 교통비, 숙박비, 일비로 구분하여〔별표1〕에서 정하는 바에 따라 이를 지급한다.</p>
+      <p style="margin:0 0 4px 0;">11.2 &nbsp;교통비는 유류비, 통행료 주차료, 차표 등이 포함되며, 자기차량 이용 시 유류비는 회사가 규정한 계산 방식에 따라 지급한다.</p>
+      <p style="margin:0 0 4px 0;">11.3 &nbsp;숙박비는 야수(야수), 일비는 일수(일수)기준으로 [별지1]에 따라 지급하며, 실비정산을 원칙으로 하되 직급 구분에 따라 상한선 한도를 따른다.</p>
+      <p style="margin:0 0 4px 0;">11.4 &nbsp;일비는 출장지역 내 교통비, 식대 등 일체를 포함한다.</p>
+      <p style="margin:0 0 14px 8px;">11.5 &nbsp;출장 회의식대는 대표이사 사전 승인 후 사용할 수 있다.</p>
+
+      <p style="margin-bottom:10px;"><strong>12. 당일출장</strong><br>
+      회사의 1일 업무 시간에 갈음하여 그 출장이 가능한 출장을 당일 출장이라 하고, 이에 대하여는 교통비, 일비를 지급한다.</p>
+
+      <p style="margin-bottom:4px;"><strong>13. 수행시의 여비</strong></p>
+      <p style="margin:0 0 4px 0;">13.1 &nbsp;직원이 임원을 수행하여 출장하는 경우에 숙박비를 임원과 동일하게 지급하되 수행원 1인에 한정한다.</p>
+      <p style="margin:0 0 14px 0;">13.2 &nbsp;단, 동일출장 목적으로 업무상 직접 보좌하는 경우에 한하여 적용한다.</p>
+
+      <p style="margin-bottom:16px;"><strong>14. 장기출장 또는 파견 때 여비 감액</strong><br>
+      회사에서 제공하는 숙소가 없는 동일지역 내에서 장기간 체류할 때 숙박비 및 일비는 여행출장일로부터 기산하여 15일까지는 여비의 정액을 지급하고, 16일 이후부터는 여비 정액의 2할을 감하여 지급하고, 30일을 초과하는 장기출장의 경우에는 현지 상황에 따라 적의 조치한다. 단, 동일지역 출장 중 일시 타 지역으로 출장한 기간은 포함하지 않는다.</p>
+
+      <!-- ===== 제3장 해외출장여비 ===== -->
+      <div style="font-size:14px;font-weight:700;text-align:center;margin:8px 0 14px;letter-spacing:2px;">제 3 장 해외 출장여비</div>
+
+      <p style="margin-bottom:4px;"><strong>14. 해외출장비</strong></p>
+      <p style="margin:0 0 4px 0;">14.1 &nbsp;해외출장비는 다음 각 호에 해당하는 여비를 [별지2]에 따라 지급한다.</p>
+      <p style="margin:0 0 2px 24px;">(1) 교통비 : 항공료 또는 선박료</p>
+      <p style="margin:0 0 2px 24px;">(2) 숙박비</p>
+      <p style="margin:0 0 4px 24px;">(3) 일 &nbsp;비 : 식대, 통신비, 현지 교통비 등 소액 경비</p>
+      <p style="margin:0 0 14px 0;">14.2 &nbsp;일비는 출국일 및 입국일을 포함하여 산정하며, 출장 일수의 계산 월력은 대한민국의 월력에 의한다.</p>
+
+      <p style="margin-bottom:4px;"><strong>15. 준비금</strong></p>
+      <p style="margin:0 0 4px 0;">15.1 &nbsp;해외출장에 따른 특별한 비용의 소요가 예상될 경우에는 대표이사의 승인을 얻어 준비금을 지급할 수 있다.</p>
+      <p style="margin:0 0 16px 0;">15.2 &nbsp;전 항의 준비금을 지급받은 자는 귀임 후 반드시 경비의 사용내역에 증빙을 첨부하여 정산하여야 한다.</p>
+
+      <p style="margin-bottom:4px;"><strong>16. 해외출장지 구분</strong><br>
+      &nbsp;&nbsp;출장지는 다음과 같다.</p>
+      <p style="margin:0 0 2px 0;">16.1 &nbsp;&nbsp;갑 지 : 북미주, 유럽, 홍콩, 오세아니아지역(단, 일본은 별도지역으로 구분한다.)</p>
+      <p style="margin:0 0 2px 0;">16.2 &nbsp;&nbsp;을 지 : 기 타 지 역</p>
+      <p style="margin:0 0 14px 0;">16.3 &nbsp;&nbsp;을지에 해당하는 해외여비의 산정은 각 출장사안별로 그 특성에 맞게 기안 품의되어 결재받은 내용으로 한다. 단, 갑지의 해외여비 정액표 금액을 초과할 수는 없다.</p>
+
+      <p style="margin-bottom:16px;"><strong>17. 장기출장</strong><br>
+      해외연수훈련 등으로 출장하는 경우 체재기간이 30일 이상의 장기인 경우에는 여비정액의 3할을 지급한다. 단, 60일 이상의 경우에는 현지 사정에 따라 적의 조정한다.</p>
+
+      <!-- ===== 제4장 교육출장여비 ===== -->
+      <div style="font-size:14px;font-weight:700;text-align:center;margin:8px 0 14px;letter-spacing:2px;">제 4 장 교육 출장여비</div>
+
+      <p style="margin-bottom:4px;"><strong>18. 교육출장여비</strong></p>
+      <p style="margin:0 0 4px 0;">18.1 &nbsp;'교육'이라 함은 회사 주관 소집의 명으로 출장하는 경우를 의미한다. 단, 워크숍(Work-Shop) 및 M.T는 제외한다.</p>
+      <p style="margin:0 0 4px 0;">18.2 &nbsp;전 항에 해당하는 교육목적 출장 시 [별지 3]에서 정하는 바에 따라 이를 지급한다.</p>
+      <p style="margin:0 0 16px 0;">18.3 &nbsp;해외 교육출장은 일반해외출장에 준하여 지급한다.</p>
+
+      <!-- ===== 제5장 부칙 ===== -->
+      <div style="font-size:14px;font-weight:700;text-align:center;margin:8px 0 14px;letter-spacing:4px;">제 5 장 부&nbsp;&nbsp;&nbsp;&nbsp;칙</div>
+
+      <p style="margin:0 0 3px 0;">19.1 &nbsp;이 규정은 2003년 &nbsp;7월 10일부터 시행한다.</p>
+      <p style="margin:0 0 3px 0;">19.2 &nbsp;이 규정은 2006년 &nbsp;1월 &nbsp;1일부터 시행한다.</p>
+      <p style="margin:0 0 3px 0;">19.3 &nbsp;이 규정은 2007년 10월 10일부터 시행한다.</p>
+      <p style="margin:0 0 3px 0;">19.4 &nbsp;이 규정은 2008년 11월 24일부터 시행한다.</p>
+      <p style="margin:0 0 3px 0;">19.5 &nbsp;이 규정은 2010년 &nbsp;7월 20일부터 시행한다.</p>
+      <p style="margin:0 0 24px 0;"><strong>19.6 &nbsp;이 규정은 2026년 &nbsp;1월 &nbsp;1일부터 시행한다.</strong></p>
+
+      <!-- ===== [별지1] 국내출장여비 ===== -->
+      <div style="border-top:2px solid #374151;padding-top:20px;margin-top:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+          <strong style="font-size:13px;">[별지1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;국내출장여비</strong>
+          <span style="font-size:11px;color:#6b7280;">&lt;단위:원&gt;</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:#f3f4f6;">
+                <th style="padding:7px 10px;border:1px solid #9ca3af;text-align:center;white-space:nowrap;">구분/직급</th>
+                <th style="padding:7px 10px;border:1px solid #9ca3af;text-align:center;">교통비</th>
+                <th style="padding:7px 10px;border:1px solid #9ca3af;text-align:center;">숙박비</th>
+                <th style="padding:7px 10px;border:1px solid #9ca3af;text-align:center;">일비</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;font-weight:600;white-space:nowrap;">회&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;장</td>
+                <td rowspan="2" style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;">항공 Business/KTX/새마을호 특실</td>
+                <td rowspan="2" style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;">실비</td>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;font-weight:600;">200,000</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;font-weight:600;white-space:nowrap;">대표 / COO</td>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;font-weight:600;">100,000</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;font-weight:600;">임&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;원</td>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;">항공/KTX/새마을호 특실</td>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;">실비</td>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;font-weight:600;">80,000</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;font-weight:600;">직&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;원</td>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;font-size:11.5px;">
+                  • 대중교통 이용 시: 실비 정산<br>
+                  &nbsp;&nbsp;1) KTX, 새마을호, 우등고속을 기준, 긴급을 요할 시 항공기편 이용가능<br><br>
+                  • 자기차량 이용 시: 실비 정산<br>
+                  &nbsp;&nbsp;1) 유류비: 연료비 × 1.5 (감가상각 반영)<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 연료비: 운행거리(km) × 유가 ÷ 연비<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 연비는 승용차 유종별 연비 기준표에 따름<br>
+                  &nbsp;&nbsp;2) 통행료: 전액<br>
+                  &nbsp;&nbsp;3) 주차비: 전액
+                </td>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;">실비<br><span style="font-size:11px;">(100,000)</span></td>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;font-weight:600;">50,000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:8px;font-size:11.5px;line-height:1.85;">
+          ※ (1) 일비는 출장지역 내 교통비, 식대 등 일체를 포함함<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(2) 자차 이용 시, 유류비 계산 기준은 실제 유가를 반영하여 변동될 수 있음<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(3) 자차 이용 유류비 증빙은 아래에 따름<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 여행거리 : 출발지와 출장지 간 거리, 한국도로공사 또는 민간에서 제공하는 거리 계산 결과<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;단, 경유지가 있는 경우 포함하여 거리 계산<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 유가정보 : 출장시작일 기준 유가, 한국석유공사 유가정보서비스(Opinet) 고시된 유가를 적용<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;전기 차량은 환경부 무공해차 통합 누리집 충전 요금, 수소 차량은 산업통상자원부 수소유통정보시스템 등을 적용<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(4) 숙박비는 실비정산을 원칙으로 하되 직급 구분에 따른 상한선을 초과하지 아니함.<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(5) 직원 숙박은 2인 1실을 원칙으로 함(남녀 제외)
+        </div>
+
+        <div style="margin-top:18px;margin-bottom:6px;font-size:13px;font-weight:700;">[승용차 유종별 연비/전비 기준표]</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;text-align:center;">
+            <thead>
+              <tr style="background:#f3f4f6;">
+                <th style="padding:7px 6px;border:1px solid #9ca3af;">구 분</th>
+                <th style="padding:7px 6px;border:1px solid #9ca3af;">휘발유</th>
+                <th style="padding:7px 6px;border:1px solid #9ca3af;">경유</th>
+                <th style="padding:7px 6px;border:1px solid #9ca3af;">LPG</th>
+                <th style="padding:7px 6px;border:1px solid #9ca3af;">하이<br>브리드</th>
+                <th style="padding:7px 6px;border:1px solid #9ca3af;">플러그인<br>하이브리드</th>
+                <th style="padding:7px 6px;border:1px solid #9ca3af;">전기</th>
+                <th style="padding:7px 6px;border:1px solid #9ca3af;">수소</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;text-align:left;">연비<br>(km/L)</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;">11.97</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;">12.52</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;">8.83</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;">15.37</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;">10.61</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+              </tr>
+              <tr style="background:#f9fafb;">
+                <td style="padding:7px 6px;border:1px solid #9ca3af;text-align:left;">전비<br>(km/kwh)</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;">2.84</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;">5.22</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+              </tr>
+              <tr>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;text-align:left;">연비<br>(km/kg)</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;color:#9ca3af;">&nbsp;</td>
+                <td style="padding:7px 6px;border:1px solid #9ca3af;">94.9</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <!-- 제5장 부칙 -->
-      <h2 style="font-size:14px;font-weight:700;color:#1e40af;margin:28px 0 8px;border-left:4px solid #1e40af;padding-left:10px;">제5장 부칙</h2>
-      <ul style="font-size:12px;color:#6b7280;line-height:2;">
-        <li>2003년 7월 10일 최초 시행</li>
-        <li>2006년 1월 1일 개정</li>
-        <li>2007년 10월 10일 개정</li>
-        <li>2008년 11월 24일 개정</li>
-        <li>2010년 7월 20일 개정</li>
-        <li><strong style="color:#1f2937;">2026년 1월 1일 개정 (현행)</strong></li>
-      </ul>
+      <!-- ===== [별지2] 해외출장여비 ===== -->
+      <div style="border-top:2px solid #374151;padding-top:20px;margin-top:24px;">
+        <div style="margin-bottom:10px;font-size:13px;font-weight:700;">[별지2]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;해외출장여비</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:11.5px;text-align:center;">
+            <thead>
+              <tr style="background:#f3f4f6;">
+                <th rowspan="3" style="padding:7px 8px;border:1px solid #9ca3af;">구분/직급</th>
+                <th colspan="2" style="padding:7px 8px;border:1px solid #9ca3af;">교통비</th>
+                <th colspan="4" style="padding:7px 8px;border:1px solid #9ca3af;">미주, 유럽 기타(U$)</th>
+                <th colspan="2" style="padding:7px 8px;border:1px solid #9ca3af;">일본(￥)</th>
+                <th rowspan="3" style="padding:7px 8px;border:1px solid #9ca3af;">비고</th>
+              </tr>
+              <tr style="background:#f3f4f6;">
+                <th style="padding:6px 8px;border:1px solid #9ca3af;">장 거 리</th>
+                <th style="padding:6px 8px;border:1px solid #9ca3af;">단 거 리</th>
+                <th colspan="2" style="padding:6px 8px;border:1px solid #9ca3af;">갑지</th>
+                <th colspan="2" style="padding:6px 8px;border:1px solid #9ca3af;">을지</th>
+                <th style="padding:6px 8px;border:1px solid #9ca3af;">숙박비</th>
+                <th style="padding:6px 8px;border:1px solid #9ca3af;">일비</th>
+              </tr>
+              <tr style="background:#f3f4f6;">
+                <th style="padding:5px 8px;border:1px solid #9ca3af;"></th>
+                <th style="padding:5px 8px;border:1px solid #9ca3af;"></th>
+                <th style="padding:5px 8px;border:1px solid #9ca3af;">숙박비</th>
+                <th style="padding:5px 8px;border:1px solid #9ca3af;">일비</th>
+                <th style="padding:5px 8px;border:1px solid #9ca3af;">숙박비</th>
+                <th style="padding:5px 8px;border:1px solid #9ca3af;">일비</th>
+                <th style="padding:5px 8px;border:1px solid #9ca3af;"></th>
+                <th style="padding:5px 8px;border:1px solid #9ca3af;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;font-weight:600;">회&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;장</td>
+                <td colspan="2" style="padding:7px 8px;border:1px solid #9ca3af;">First Class</td>
+                <td colspan="4" style="padding:7px 8px;border:1px solid #9ca3af;">1,500 / 1일</td>
+                <td colspan="2" style="padding:7px 8px;border:1px solid #9ca3af;">150,000 / 1일</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">-</td>
+              </tr>
+              <tr style="background:#f9fafb;">
+                <td style="padding:7px 8px;border:1px solid #9ca3af;font-weight:600;">대표 / CEO</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">First Class</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">Business<br>Class</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">200</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">30,000</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;"></td>
+              </tr>
+              <tr>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;font-weight:600;">임&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;원</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">Business<br>Class</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">Economy<br>Class</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비<br>(200)</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">150</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비<br>(180)</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비<br>(180)</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비<br>(25,000)</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">20,000</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;"></td>
+              </tr>
+              <tr style="background:#f9fafb;">
+                <td style="padding:7px 8px;border:1px solid #9ca3af;font-weight:600;">직&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;원</td>
+                <td colspan="2" style="padding:7px 8px;border:1px solid #9ca3af;">Economy Class</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;"></td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">100</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;"></td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;"></td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;"></td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">12,000</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">2인1실</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:8px;font-size:11.5px;line-height:1.85;">
+          ※ (1) 연수, 교육, 산업시찰 등을 목적으로 해외출장시 숙박비는 단체 실비 정산함을 원칙으로 함<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(2) 해외 교육출장은 일반해외출장에 준하여 지급함<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(3) 일비는 식대, 팁, 통신비, 현지 교통비 등을 포함함<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(4) 교통비(항공편)의 지급은 비행시간 기준 3시간 미만을 단거리로 함<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(5) 숙박비는 실비정산을 원칙으로 하되 직급 구분 및 출장지 구분에 따른 상한선을 초과하지 아니함<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(6) 직원 숙박은 2인 1실을 원칙으로 함(남녀 제외)
+        </div>
+      </div>
+
+      <!-- ===== [별지3] 교육출장여비 ===== -->
+      <div style="border-top:2px solid #374151;padding-top:20px;margin-top:24px;">
+        <div style="margin-bottom:10px;font-size:13px;font-weight:700;">[별지3]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;교육출장여비</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;text-align:center;">
+            <thead>
+              <tr style="background:#f3f4f6;">
+                <th colspan="2" style="padding:7px 16px;border:1px solid #9ca3af;text-align:left;">구분</th>
+                <th style="padding:7px 16px;border:1px solid #9ca3af;">교통비</th>
+                <th style="padding:7px 16px;border:1px solid #9ca3af;">숙박비</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="2" style="padding:7px 12px;border:1px solid #9ca3af;font-weight:600;">합숙교육</td>
+                <td style="padding:7px 12px;border:1px solid #9ca3af;">개별숙박</td>
+                <td style="padding:7px 12px;border:1px solid #9ca3af;">국내출장기준 적용</td>
+                <td style="padding:7px 12px;border:1px solid #9ca3af;">국내출장기준 적용</td>
+              </tr>
+              <tr style="background:#f9fafb;">
+                <td style="padding:7px 12px;border:1px solid #9ca3af;">숙박제공</td>
+                <td style="padding:7px 12px;border:1px solid #9ca3af;">국내출장기준 적용</td>
+                <td style="padding:7px 12px;border:1px solid #9ca3af;">무</td>
+              </tr>
+              <tr>
+                <td colspan="2" style="padding:7px 12px;border:1px solid #9ca3af;font-weight:600;">당일교육/출퇴근교육</td>
+                <td style="padding:7px 12px;border:1px solid #9ca3af;">국내출장기준 적용</td>
+                <td style="padding:7px 12px;border:1px solid #9ca3af;">무</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:8px;font-size:11.5px;">
+          ※ (1) 해외 교육출장은 일반해외출장에 준하여 지급함
+        </div>
+      </div>
 
     </div>
 
     <div style="text-align:center;margin-top:28px;">
-      <button onclick="closeRegs()" style="padding:10px 32px;background:#1e40af;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;">닫기</button>
+      <button onclick="closeRegs()" style="padding:10px 32px;background:#1e3a8a;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;">닫기</button>
     </div>
   </div>
 </div>
