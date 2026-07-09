@@ -314,7 +314,7 @@
             유가 <span id="fuelPriceUnit" class="font-normal text-gray-400">(원/L)</span>
           </label>
           <div class="flex gap-1">
-            <input type="number" id="fuelPrice" placeholder="0" min="0" oninput="calc()" class="form-input flex-1">
+            <input type="text" inputmode="numeric" id="fuelPrice" placeholder="0" oninput="calc()" class="form-input flex-1 comma-num">
             <span id="fuelPriceBtn" class="no-print">
               <button onclick="fetchOpinetPrice()" class="btn-orange btn flex-shrink-0">오피넷</button>
             </span>
@@ -323,7 +323,7 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-600 mb-1">통행료 (원)</label>
-          <input type="number" id="tollCost" placeholder="0" min="0" oninput="calc()" class="form-input">
+          <input type="text" inputmode="numeric" id="tollCost" placeholder="0" oninput="calc()" class="form-input comma-num">
           <p class="text-xs text-gray-400 mt-1">전액 실비 정산</p>
         </div>
       </div>
@@ -331,7 +331,7 @@
       <div class="grid grid-cols-3 gap-3 mb-2">
         <div>
           <label class="block text-xs font-semibold text-gray-600 mb-1">주차비 (원)</label>
-          <input type="number" id="parkingCost" placeholder="0" min="0" oninput="calc()" class="form-input">
+          <input type="text" inputmode="numeric" id="parkingCost" placeholder="0" oninput="calc()" class="form-input comma-num">
           <p class="text-xs text-gray-400 mt-1">전액 실비 정산</p>
         </div>
         <div class="col-span-2">
@@ -348,7 +348,7 @@
     <div id="sectionPublic" class="hidden">
       <div class="max-w-xs">
         <label class="block text-xs font-semibold text-gray-600 mb-1">교통비 (원)</label>
-        <input type="number" id="publicCost" placeholder="0" min="0" oninput="calc()" class="form-input">
+        <input type="text" inputmode="numeric" id="publicCost" placeholder="0" oninput="calc()" class="form-input comma-num">
         <p class="text-xs text-gray-400 mt-1">KTX·새마을호·우등고속 실비 | 긴급 시 항공 가능</p>
       </div>
     </div>
@@ -360,7 +360,7 @@
     <div class="grid grid-cols-4 gap-3 items-start">
       <div>
         <label class="block text-xs font-semibold text-gray-600 mb-1">숙박비 합계 (원)</label>
-        <input type="number" id="accommodationCost" placeholder="0" min="0" oninput="calc()" class="form-input">
+        <input type="text" inputmode="numeric" id="accommodationCost" placeholder="0" oninput="calc()" class="form-input comma-num">
       </div>
       <div>
         <label class="block text-xs font-semibold text-gray-600 mb-1">숙박 일수</label>
@@ -504,7 +504,7 @@
       <div>
         <label class="block text-xs font-semibold text-gray-600 mb-1">USD → KRW 환율</label>
         <div class="flex gap-2 items-center">
-          <input type="number" id="o_usdRate" placeholder="1,400" min="1" step="1" oninput="o_calc()" class="form-input flex-1">
+          <input type="text" inputmode="numeric" id="o_usdRate" placeholder="1,400" oninput="o_calc()" class="form-input flex-1 comma-num">
           <span class="text-xs text-gray-500 whitespace-nowrap">원/USD</span>
         </div>
         <p class="text-xs text-gray-400 mt-1">미입력 시 1,400 적용</p>
@@ -528,11 +528,11 @@
         <label class="block text-xs font-semibold text-gray-600 mb-1">항공료</label>
         <div class="flex gap-1">
           <select id="o_transportCur" onchange="o_calc()" class="form-input" style="width:72px;flex-shrink:0;padding-left:6px;padding-right:4px">
+            <option value="KRW" selected>KRW</option>
             <option value="USD">USD</option>
             <option value="JPY">JPY</option>
-            <option value="KRW">KRW</option>
           </select>
-          <input type="number" id="o_transportCost" placeholder="0" min="0" oninput="o_calc()" class="form-input flex-1">
+          <input type="text" inputmode="numeric" id="o_transportCost" placeholder="0" oninput="o_calc()" class="form-input flex-1 comma-num">
         </div>
         <p class="text-xs text-gray-400 mt-1">항공료 또는 선박료 실비</p>
       </div>
@@ -547,7 +547,7 @@
   <!-- ⑤ 숙박비 -->
   <div class="card">
     <div class="card-title">⑤ 숙박비</div>
-    <div class="grid grid-cols-4 gap-3 items-start">
+    <div class="grid gap-3 items-start" style="grid-template-columns: 3fr 1fr 5fr 3fr;">
       <div>
         <label class="block text-xs font-semibold text-gray-600 mb-1">숙박 합계</label>
         <div class="flex gap-1">
@@ -556,7 +556,7 @@
             <option value="JPY">JPY</option>
             <option value="KRW">KRW</option>
           </select>
-          <input type="number" id="o_accommodationCost" placeholder="0" min="0" oninput="o_calc()" class="form-input flex-1">
+          <input type="text" inputmode="numeric" id="o_accommodationCost" placeholder="0" oninput="o_calc()" class="form-input flex-1 comma-num">
         </div>
       </div>
       <div>
@@ -619,7 +619,7 @@
             <option value="JPY">JPY</option>
             <option value="KRW">KRW</option>
           </select>
-          <input type="number" id="o_miscCost" placeholder="0" min="0" oninput="o_calc()" class="form-input flex-1">
+          <input type="text" inputmode="numeric" id="o_miscCost" placeholder="0" oninput="o_calc()" class="form-input flex-1 comma-num">
         </div>
         <p class="text-xs text-gray-400 mt-1">사전 승인된 특별 경비</p>
       </div>
@@ -1158,8 +1158,22 @@ function calc() {
 
 // ─── 유틸 ────────────────────────────────────────────────────────────────────
 
-function num(id)  { return parseFloat(document.getElementById(id)?.value) || 0; }
+function parseComma(v) { return parseFloat(String(v).replace(/,/g,'')) || 0; }
+function num(id)  { return parseComma(document.getElementById(id)?.value); }
 function fmt(n)   { return Math.round(n).toLocaleString('ko-KR'); }
+
+// 천단위 쉼표 실시간 포매터
+document.addEventListener('input', function(e) {
+  if (!e.target.classList.contains('comma-num')) return;
+  const el  = e.target;
+  const pos = el.selectionStart;
+  const raw = el.value.replace(/,/g,'').replace(/[^\d]/g,'');
+  if (!raw) { el.value = ''; return; }
+  const formatted = parseInt(raw, 10).toLocaleString('ko-KR');
+  const diff = formatted.length - el.value.length;
+  el.value = formatted;
+  try { el.setSelectionRange(pos + diff, pos + diff); } catch(_) {}
+});
 function esc(s)   { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function setRow(rowId, valId, value) {
   document.getElementById(rowId).style.display = value > 0 ? '' : 'none';
@@ -1306,9 +1320,23 @@ function o_updateDays() {
 function o_updateRegion() {
   const region = document.getElementById('o_region').value;
   const cur    = O_CURRENCY_LABEL[region]; // 'USD' or 'JPY'
-  ['o_transportCur', 'o_accomCur', 'o_miscCur'].forEach(id => {
+  ['o_accomCur', 'o_miscCur'].forEach(id => {
     document.getElementById(id).value = cur;
   });
+
+  // 해당 통화 환율 입력란 하이라이트
+  const usdBox = document.getElementById('o_usdRate');
+  const jpyBox = document.getElementById('o_jpyRate');
+  const HL = 'border-blue-500 bg-blue-50 ring-2 ring-blue-300';
+  const NM = 'border-gray-300 bg-white';
+  if (cur === 'JPY') {
+    usdBox.classList.remove(...HL.split(' ')); usdBox.classList.add(...NM.split(' '));
+    jpyBox.classList.remove(...NM.split(' ')); jpyBox.classList.add(...HL.split(' '));
+  } else {
+    jpyBox.classList.remove(...HL.split(' ')); jpyBox.classList.add(...NM.split(' '));
+    usdBox.classList.remove(...NM.split(' ')); usdBox.classList.add(...HL.split(' '));
+  }
+
   o_updateLimitLabel();
   o_calc();
 }
@@ -1357,7 +1385,7 @@ function o_calc() {
   const grade      = document.getElementById('empGrade').value;
   const flightType = document.getElementById('o_flightType').value;
   const cur      = O_CURRENCY_LABEL[region];
-  const usdRate  = parseFloat(document.getElementById('o_usdRate').value) || 1400;
+  const usdRate  = parseComma(document.getElementById('o_usdRate').value) || 1400;
   const jpyRate  = parseFloat(document.getElementById('o_jpyRate').value) || 9.5;
   // 지역 기본 통화 기준 환율 (일비 계산용)
   const rate     = (region === 'japan_jpy') ? jpyRate : usdRate;
@@ -1384,12 +1412,12 @@ function o_calc() {
     `${dailyTotal.toLocaleString()} ${cur} → ${fmt(Math.round(dailyTotal * rate))}원`;
 
   // 교통비
-  const transportAmt = parseFloat(document.getElementById('o_transportCost').value) || 0;
+  const transportAmt = parseComma(document.getElementById('o_transportCost').value);
   const transportCur = document.getElementById('o_transportCur').value;
   const transportKrw = o_toKrw(transportAmt, transportCur, usdRate, jpyRate);
 
   // 숙박비 (합계 입력 방식)
-  const accomTotalAmt = parseFloat(document.getElementById('o_accommodationCost').value) || 0;
+  const accomTotalAmt = parseComma(document.getElementById('o_accommodationCost').value);
   const accomCur      = document.getElementById('o_accomCur').value;
   const stayDays      = parseInt(document.getElementById('o_stayDays').value) || nights;
   const accomTotalKrwRaw = o_toKrw(accomTotalAmt, accomCur, usdRate, jpyRate);
@@ -1438,7 +1466,7 @@ function o_calc() {
   }
 
   // 기타 경비
-  const miscAmt  = parseFloat(document.getElementById('o_miscCost').value) || 0;
+  const miscAmt  = parseComma(document.getElementById('o_miscCost').value);
   const miscCur  = document.getElementById('o_miscCur').value;
   const miscKrw  = o_toKrw(miscAmt, miscCur, usdRate, jpyRate);
   const miscDesc = document.getElementById('o_miscDesc').value || '기타 경비';
@@ -1481,7 +1509,7 @@ function o_resetForm() {
   document.getElementById('o_flightType').value = 'long';
   document.getElementById('o_usdRate').value = '';
   document.getElementById('o_jpyRate').value = '';
-  document.getElementById('o_transportCur').value = 'USD';
+  document.getElementById('o_transportCur').value = 'KRW';
   document.getElementById('o_transportCost').value = '';
   document.getElementById('o_accomCur').value = 'USD';
   document.getElementById('o_accommodationCost').value = '';
@@ -1760,22 +1788,18 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeRegs();
                 <th rowspan="3" style="padding:7px 8px;border:1px solid #9ca3af;">비고</th>
               </tr>
               <tr style="background:#f3f4f6;">
-                <th style="padding:6px 8px;border:1px solid #9ca3af;">장 거 리</th>
-                <th style="padding:6px 8px;border:1px solid #9ca3af;">단 거 리</th>
+                <th rowspan="2" style="padding:6px 8px;border:1px solid #9ca3af;">장 거 리</th>
+                <th rowspan="2" style="padding:6px 8px;border:1px solid #9ca3af;">단 거 리</th>
                 <th colspan="2" style="padding:6px 8px;border:1px solid #9ca3af;">갑지</th>
                 <th colspan="2" style="padding:6px 8px;border:1px solid #9ca3af;">을지</th>
-                <th style="padding:6px 8px;border:1px solid #9ca3af;">숙박비</th>
-                <th style="padding:6px 8px;border:1px solid #9ca3af;">일비</th>
+                <th rowspan="2" style="padding:6px 8px;border:1px solid #9ca3af;">숙박비</th>
+                <th rowspan="2" style="padding:6px 8px;border:1px solid #9ca3af;">일비</th>
               </tr>
               <tr style="background:#f3f4f6;">
-                <th style="padding:5px 8px;border:1px solid #9ca3af;"></th>
-                <th style="padding:5px 8px;border:1px solid #9ca3af;"></th>
                 <th style="padding:5px 8px;border:1px solid #9ca3af;">숙박비</th>
                 <th style="padding:5px 8px;border:1px solid #9ca3af;">일비</th>
                 <th style="padding:5px 8px;border:1px solid #9ca3af;">숙박비</th>
                 <th style="padding:5px 8px;border:1px solid #9ca3af;">일비</th>
-                <th style="padding:5px 8px;border:1px solid #9ca3af;"></th>
-                <th style="padding:5px 8px;border:1px solid #9ca3af;"></th>
               </tr>
             </thead>
             <tbody>
