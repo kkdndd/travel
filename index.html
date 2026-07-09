@@ -552,9 +552,9 @@
         <label class="block text-xs font-semibold text-gray-600 mb-1">숙박 합계</label>
         <div class="flex gap-1">
           <select id="o_accomCur" onchange="o_calc()" class="form-input" style="width:72px;flex-shrink:0;padding-left:6px;padding-right:4px">
+            <option value="KRW" selected>KRW</option>
             <option value="USD">USD</option>
             <option value="JPY">JPY</option>
-            <option value="KRW">KRW</option>
           </select>
           <input type="text" inputmode="numeric" id="o_accommodationCost" placeholder="0" oninput="o_calc()" class="form-input flex-1 comma-num">
         </div>
@@ -1507,7 +1507,7 @@ function o_resetForm() {
   document.getElementById('o_jpyRate').value = '';
   document.getElementById('o_transportCur').value = 'KRW';
   document.getElementById('o_transportCost').value = '';
-  document.getElementById('o_accomCur').value = 'USD';
+  document.getElementById('o_accomCur').value = 'KRW';
   document.getElementById('o_accommodationCost').value = '';
   document.getElementById('o_miscCur').value = 'USD';
   document.getElementById('o_miscCost').value = '';
