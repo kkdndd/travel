@@ -163,7 +163,7 @@
         <label class="block text-xs font-semibold text-gray-600 mb-1">직급</label>
         <select id="empGrade" onchange="onGradeChange()" class="form-input">
           <option value="chairman">회장</option>
-          <option value="ceo">대표 / COO</option>
+          <option value="ceo">대표</option>
           <option value="executive">임원</option>
           <option value="staff" selected>직원</option>
         </select>
@@ -307,7 +307,7 @@
         <div>
           <label class="block text-xs font-semibold text-gray-600 mb-1">운행거리 (km)</label>
           <input type="number" id="distance" placeholder="길찾기 앱에서 확인 후 입력" min="0" step="0.1" oninput="calc()" class="form-input">
-          <p class="text-xs text-gray-400 mt-1">왕복이면 2배 입력</p>
+          <p class="text-xs text-gray-400 mt-1">왕복 운행거리 입력</p>
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-600 mb-1">
@@ -686,7 +686,7 @@ const FUEL_TYPES = {
 
 const DAILY_ALLOWANCE = { chairman:200000, ceo:100000, executive:80000, staff:50000 };
 const ACCOM_LIMIT     = { chairman:Infinity, ceo:Infinity, executive:Infinity, staff:100000 };
-const GRADE_LABEL     = { chairman:'회장', ceo:'대표/COO', executive:'임원', staff:'직원' };
+const GRADE_LABEL     = { chairman:'회장', ceo:'대표', executive:'임원', staff:'직원' };
 
 // ─── 상태 ────────────────────────────────────────────────────────────────────
 
@@ -1260,7 +1260,7 @@ const O_CLASS = {
   staff:     ['Economy Class', 'Economy Class'],
 };
 const O_CURRENCY_LABEL = { gapji_usd:'USD', eulji_usd:'USD', japan_jpy:'JPY' };
-const O_GRADE_LABEL    = { chairman:'회장', ceo:'대표/CEO', executive:'임원', staff:'직원' };
+const O_GRADE_LABEL    = { chairman:'회장', ceo:'대표', executive:'임원', staff:'직원' };
 
 // ─── 해외출장: 기간 계산 ─────────────────────────────────────────────────────
 
@@ -1286,6 +1286,11 @@ function o_updateDays() {
 // ─── 해외출장: 지역 변경 ─────────────────────────────────────────────────────
 
 function o_updateRegion() {
+  const region = document.getElementById('o_region').value;
+  const cur    = O_CURRENCY_LABEL[region]; // 'USD' or 'JPY'
+  ['o_transportCur', 'o_accomCur', 'o_miscCur'].forEach(id => {
+    document.getElementById(id).value = cur;
+  });
   o_updateLimitLabel();
   o_calc();
 }
@@ -1517,7 +1522,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeRegs();
       출장자는 회사가 지정한 양식에 의거하여 소속부서 전결권자의 결재를 득한 후 출장 전에 여비를 지급 받는다.</p>
 
       <p style="margin-bottom:4px;"><strong>7. 여비의 제한</strong></p>
-      <p style="margin:0 0 4px 8px;">7.1 &nbsp;회사가 교통편, 숙박 등 별도의 경비를 부담하는 경우에는 해당 출장여비를 지급하지 아니한다.</p>
+      <p style="margin:0 0 4px 0;">7.1 &nbsp;&nbsp;회사가 교통편, 숙박 등 별도의 경비를 부담하는 경우에는 해당 출장여비를 지급하지 아니한다.</p>
       <p style="margin:0 0 4px 0;">7.2 &nbsp;&nbsp;여행중 개인의 사유로 우회경유 하거나 체류하는 경우 이에 해당하는 여비는 지급하지 않는다.</p>
       <p style="margin:0 0 4px 0;">7.3 &nbsp;&nbsp;타기관 또는 타인으로부터 여비의 전부 또는 일부를 지급 받고 출장하는 경우에는 그에 미달하는 차액만을 지급한다.</p>
       <p style="margin:0 0 14px 0;">7.4 &nbsp;&nbsp;타지에서의 소속직원 경조사로 인한 출장은 다음과 같으며 출장대상자는 차상급자 1인을 포함한 2인 이내로 한다. (직원의 결혼, 사망, 입원 및 직계존비속의 회갑, 사망 등 기타 회사가 필요하다고 인정한 경조사항)</p>
@@ -1540,8 +1545,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeRegs();
       <p style="margin:0 0 14px 0;">10.2 &nbsp;단, 근무지역에서 100KM 미만 지역으로 이동하더라도 1일 업무 시간이 소요되는 업무상 이동의 경우는 당일출장으로 구분한다.</p>
 
       <p style="margin-bottom:4px;"><strong>11. 정산</strong></p>
-      <p style="margin:0 0 4px 0;">11.1 &nbsp;국내출장여비는 교통비, 숙박비, 일비로 구분하여〔별표1〕에서 정하는 바에 따라 이를 지급한다.</p>
-      <p style="margin:0 0 4px 0;">11.2 &nbsp;교통비는 유류비, 통행료 주차료, 차표 등이 포함되며, 자기차량 이용 시 유류비는 회사가 규정한 계산 방식에 따라 지급한다.</p>
+      <p style="margin:0 0 4px 0;">11.1 &nbsp;국내출장여비는 교통비, 숙박비, 일비로 구분하여〔별지1〕에서 정하는 바에 따라 이를 지급한다.</p>
+      <p style="margin:0 0 4px 0;">11.2 &nbsp;교통비는 유류비, 통행료, 주차료, 차표 등이 포함되며, 자기차량 이용 시 유류비는 회사가 규정한 계산 방식에 따라 지급한다.</p>
       <p style="margin:0 0 4px 0;">11.3 &nbsp;숙박비는 야수(야수), 일비는 일수(일수)기준으로 [별지1]에 따라 지급하며, 실비정산을 원칙으로 하되 직급 구분에 따라 상한선 한도를 따른다.</p>
       <p style="margin:0 0 4px 0;">11.4 &nbsp;일비는 출장지역 내 교통비, 식대 등 일체를 포함한다.</p>
       <p style="margin:0 0 14px 8px;">11.5 &nbsp;출장 회의식대는 대표이사 사전 승인 후 사용할 수 있다.</p>
@@ -1621,7 +1626,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeRegs();
                 <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;font-weight:600;">200,000</td>
               </tr>
               <tr>
-                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;font-weight:600;white-space:nowrap;">대표 / COO</td>
+                <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;font-weight:600;white-space:nowrap;">대표</td>
                 <td style="padding:8px 10px;border:1px solid #9ca3af;text-align:center;font-weight:600;">100,000</td>
               </tr>
               <tr>
@@ -1752,13 +1757,13 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeRegs();
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">-</td>
               </tr>
               <tr style="background:#f9fafb;">
-                <td style="padding:7px 8px;border:1px solid #9ca3af;font-weight:600;">대표 / CEO</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;font-weight:600;">대&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;표</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">First Class</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">Business<br>Class</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">실비</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">200</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">실비</td>
-                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">200</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">실비</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">30,000</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;"></td>
@@ -1770,7 +1775,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeRegs();
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">실비<br>(200)</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">150</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">실비<br>(180)</td>
-                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비<br>(180)</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">150</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">실비<br>(25,000)</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">20,000</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;"></td>
@@ -1778,11 +1783,11 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeRegs();
               <tr style="background:#f9fafb;">
                 <td style="padding:7px 8px;border:1px solid #9ca3af;font-weight:600;">직&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;원</td>
                 <td colspan="2" style="padding:7px 8px;border:1px solid #9ca3af;">Economy Class</td>
-                <td style="padding:7px 8px;border:1px solid #9ca3af;"></td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비<br>(200)</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">100</td>
-                <td style="padding:7px 8px;border:1px solid #9ca3af;"></td>
-                <td style="padding:7px 8px;border:1px solid #9ca3af;"></td>
-                <td style="padding:7px 8px;border:1px solid #9ca3af;"></td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비<br>(180)</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">100</td>
+                <td style="padding:7px 8px;border:1px solid #9ca3af;">실비<br>(25,000)</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">12,000</td>
                 <td style="padding:7px 8px;border:1px solid #9ca3af;">2인1실</td>
               </tr>
