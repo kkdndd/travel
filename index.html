@@ -562,7 +562,7 @@
       <div>
         <label class="block text-xs font-semibold text-gray-600 mb-1">숙박 일수</label>
         <input type="number" id="o_stayDays" placeholder="0" min="0" oninput="o_calc()" class="form-input">
-        <p class="text-xs text-gray-400 mt-1">귀국일 입력 시 자동 설정</p>
+
       </div>
       <div>
         <label class="block text-xs font-semibold text-gray-600 mb-1">1박당 숙박비</label>
@@ -1320,10 +1320,6 @@ function o_updateDays() {
 function o_updateRegion() {
   const region = document.getElementById('o_region').value;
   const cur    = O_CURRENCY_LABEL[region]; // 'USD' or 'JPY'
-  ['o_accomCur', 'o_miscCur'].forEach(id => {
-    document.getElementById(id).value = cur;
-  });
-
   // 해당 통화 환율 입력란 하이라이트
   const usdBox = document.getElementById('o_usdRate');
   const jpyBox = document.getElementById('o_jpyRate');
