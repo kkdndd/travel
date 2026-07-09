@@ -1320,6 +1320,9 @@ function o_updateDays() {
 function o_updateRegion() {
   const region = document.getElementById('o_region').value;
   const cur    = O_CURRENCY_LABEL[region]; // 'USD' or 'JPY'
+  // 기타 경비 통화 → 지역 통화로 자동 설정
+  document.getElementById('o_miscCur').value = cur;
+
   // 해당 통화 환율 입력란 하이라이트
   const usdBox = document.getElementById('o_usdRate');
   const jpyBox = document.getElementById('o_jpyRate');
