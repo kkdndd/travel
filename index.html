@@ -542,9 +542,9 @@
   <!-- ⑤ 숙박비 -->
   <div class="card">
     <div class="card-title">⑤ 숙박비</div>
-    <div class="grid grid-cols-3 gap-3 items-start">
+    <div class="grid grid-cols-4 gap-3 items-start">
       <div>
-        <label class="block text-xs font-semibold text-gray-600 mb-1">1박당 숙박비</label>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">숙박 합계</label>
         <div class="flex gap-1">
           <select id="o_accomCur" onchange="o_calc()" class="form-input" style="width:72px;flex-shrink:0;padding-left:6px;padding-right:4px">
             <option value="USD">USD</option>
@@ -558,6 +558,11 @@
         <label class="block text-xs font-semibold text-gray-600 mb-1">숙박 일수</label>
         <input type="number" id="o_stayDays" placeholder="0" min="0" oninput="o_calc()" class="form-input">
         <p class="text-xs text-gray-400 mt-1">귀국일 입력 시 자동 설정</p>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">1박당 숙박비</label>
+        <div class="h-[39px] flex items-center px-3 bg-gray-50 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700" id="o_perNightLabel">-</div>
+        <p class="text-xs text-gray-400 mt-1">합계 ÷ 숙박 일수</p>
       </div>
       <div>
         <label class="block text-xs font-semibold text-gray-600 mb-1">상한선</label>
@@ -1372,23 +1377,34 @@ function o_calc() {
   const transportCur = document.getElementById('o_transportCur').value;
   const transportKrw = o_toKrw(transportAmt, transportCur, usdRate, jpyRate);
 
-  // 숙박비
-  const accomPerNightAmt = parseFloat(document.getElementById('o_accommodationCost').value) || 0;
-  const accomCur         = document.getElementById('o_accomCur').value;
-  const stayDays         = parseInt(document.getElementById('o_stayDays').value) || nights;
-  // 상한선: 지역 통화 기준 → 원화로 변환해서 비교
-  const limFx     = O_ACCOM_LIMIT[region]?.[grade]; // 지역 통화 단위
-  const limKrw    = limFx !== null ? o_toKrw(limFx, cur, usdRate, jpyRate) : null;
-  const accomKrwPerNight = o_toKrw(accomPerNightAmt, accomCur, usdRate, jpyRate);
-  const appliedKrwPerNight = (limKrw !== null && accomKrwPerNight > limKrw) ? limKrw : accomKrwPerNight;
-  let accomTotalKrw = appliedKrwPerNight * stayDays;
-  if (longStay) accomTotalKrw = Math.round(accomTotalKrw * 0.3);
-  const accomKrw = accomTotalKrw;
+  // 숙박비 (합계 입력 방식)
+  const accomTotalAmt = parseFloat(document.getElementById('o_accommodationCost').value) || 0;
+  const accomCur      = document.getElementById('o_accomCur').value;
+  const stayDays      = parseInt(document.getElementById('o_stayDays').value) || nights;
+  const accomTotalKrwRaw = o_toKrw(accomTotalAmt, accomCur, usdRate, jpyRate);
+
+  // 1박당 계산 (표시용)
+  const perNightAmt = stayDays > 0 ? accomTotalAmt / stayDays : 0;
+  const perNightKrw = stayDays > 0 ? Math.round(accomTotalKrwRaw / stayDays) : 0;
+  const perNightLbl = document.getElementById('o_perNightLabel');
+  if (perNightLbl) {
+    perNightLbl.textContent = stayDays > 0
+      ? (accomCur === 'KRW' ? `${fmt(perNightKrw)}원` : `${perNightAmt.toLocaleString()} ${accomCur}`)
+      : '-';
+  }
+
+  // 상한선: 지역 통화 기준 → 원화로 변환해서 1박당 비교
+  const limFx  = O_ACCOM_LIMIT[region]?.[grade];
+  const limKrw = limFx !== null ? o_toKrw(limFx, cur, usdRate, jpyRate) : null;
+  const exceeds = limKrw !== null && perNightKrw > limKrw;
+  const appliedTotalKrw = exceeds ? limKrw * stayDays : accomTotalKrwRaw;
+  let accomKrw = exceeds ? appliedTotalKrw : accomTotalKrwRaw;
+  if (longStay) accomKrw = Math.round(accomKrw * 0.3);
 
   // 숙박 초과 경고
   const accomWarn = document.getElementById('o_accommodationWarn');
-  if (limKrw !== null && accomKrwPerNight > limKrw) {
-    accomWarn.textContent = `⚠️ 1박당 숙박비(${accomKrwPerNight.toLocaleString()}원)가 상한선(${limKrw.toLocaleString()}원 / ${limFx.toLocaleString()} ${cur})을 초과합니다. 상한선 금액으로 정산됩니다.`;
+  if (exceeds) {
+    accomWarn.textContent = `⚠️ 1박당 숙박비(${fmt(perNightKrw)}원)가 상한선(${fmt(limKrw)}원 / ${limFx.toLocaleString()} ${cur})을 초과합니다. 상한선 금액으로 정산됩니다.`;
     accomWarn.classList.remove('hidden');
   } else {
     accomWarn.classList.add('hidden');
@@ -1398,11 +1414,11 @@ function o_calc() {
   // 숙박 상세 레이블
   const accomDetailRow = document.getElementById('o_r_accom_detail_row');
   const accomDetail    = document.getElementById('o_r_accom_detail');
-  if (stayDays > 0) {
-    const dispAmt = accomCur === 'KRW'
-      ? `${fmt(appliedKrwPerNight)}원`
-      : `${accomPerNightAmt.toLocaleString()} ${accomCur}→${fmt(appliedKrwPerNight)}원`;
-    accomDetail.textContent = `${dispAmt} × ${stayDays}박${longStay?' (30%감액)':''}`;
+  if (stayDays > 0 && accomTotalAmt > 0) {
+    const dispTotal = accomCur === 'KRW'
+      ? `${fmt(accomTotalKrwRaw)}원`
+      : `${accomTotalAmt.toLocaleString()} ${accomCur}→${fmt(accomTotalKrwRaw)}원`;
+    accomDetail.textContent = `합계 ${dispTotal} (${stayDays}박${longStay?', 30%감액':''})`;
     accomDetailRow.style.display = '';
   } else {
     accomDetailRow.style.display = 'none';
