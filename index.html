@@ -357,15 +357,20 @@
   <!-- ④ 숙박비 -->
   <div class="card">
     <div class="card-title">④ 숙박비</div>
-    <div class="grid grid-cols-3 gap-3 items-start">
+    <div class="grid grid-cols-4 gap-3 items-start">
       <div>
-        <label class="block text-xs font-semibold text-gray-600 mb-1">1박당 숙박비 (원)</label>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">숙박비 합계 (원)</label>
         <input type="number" id="accommodationCost" placeholder="0" min="0" oninput="calc()" class="form-input">
       </div>
       <div>
         <label class="block text-xs font-semibold text-gray-600 mb-1">숙박 일수</label>
         <input type="number" id="stayDays" placeholder="0" min="0" oninput="calc()" class="form-input">
         <p class="text-xs text-gray-400 mt-1">귀임일 입력 시 자동 설정</p>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">1박당 숙박비</label>
+        <div class="h-[39px] flex items-center px-3 bg-gray-50 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700" id="perNightLabel">-</div>
+        <p class="text-xs text-gray-400 mt-1">합계 ÷ 숙박 일수</p>
       </div>
       <div>
         <label class="block text-xs font-semibold text-gray-600 mb-1">상한선</label>
@@ -1115,13 +1120,19 @@ function calc() {
   }
 
   const stayDays      = num('stayDays');
-  const accomPerNight = num('accommodationCost');
+  const accomTotal_   = num('accommodationCost'); // 합계 입력
   const limit         = ACCOM_LIMIT[grade];
-  const cappedNight   = Math.min(accomPerNight, limit);
-  const accomTotal    = cappedNight * stayDays;
+  const accomPerNight = stayDays > 0 ? accomTotal_ / stayDays : 0;
+  // 1박당 표시
+  const pnLbl = document.getElementById('perNightLabel');
+  if (pnLbl) pnLbl.textContent = stayDays > 0 ? `${fmt(Math.round(accomPerNight))}원` : '-';
+  // 상한 적용
   const overLimit     = accomPerNight > limit && limit < Infinity;
+  const cappedNight   = overLimit ? limit : accomPerNight;
+  const accomTotal    = Math.round(cappedNight * stayDays);
   document.getElementById('accommodationWarn').classList.toggle('hidden', !overLimit);
-  const accomDetail   = stayDays > 0 ? `${fmt(cappedNight)}원 × ${stayDays}박${overLimit?' (상한 적용)':''}` : '';
+  const accomDetail   = stayDays > 0 && accomTotal_ > 0
+    ? `합계 ${fmt(Math.round(accomTotal_))}원 (${stayDays}박${overLimit?' · 상한 적용':''})` : '';
   document.getElementById('r_accom_detail').textContent = accomDetail;
   document.getElementById('r_accom_detail_row').style.display = accomDetail ? '' : 'none';
 
@@ -1389,7 +1400,9 @@ function o_calc() {
   const perNightLbl = document.getElementById('o_perNightLabel');
   if (perNightLbl) {
     perNightLbl.textContent = stayDays > 0
-      ? (accomCur === 'KRW' ? `${fmt(perNightKrw)}원` : `${perNightAmt.toLocaleString()} ${accomCur}`)
+      ? (accomCur === 'KRW'
+          ? `${fmt(perNightKrw)}원`
+          : `${perNightAmt.toLocaleString()} ${accomCur} / ${fmt(perNightKrw)}원`)
       : '-';
   }
 
@@ -1430,7 +1443,7 @@ function o_calc() {
   const miscKrw  = o_toKrw(miscAmt, miscCur, usdRate, jpyRate);
   const miscDesc = document.getElementById('o_miscDesc').value || '기타 경비';
   const miscRow  = document.getElementById('o_r_misc_row');
-  if (miscFx > 0) {
+  if (miscAmt > 0) {
     document.getElementById('o_r_misc_label').textContent = miscDesc;
     document.getElementById('o_r_misc').textContent = `${fmt(miscKrw)}원`;
     miscRow.style.display = '';
@@ -1566,7 +1579,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeRegs();
       <p style="margin:0 0 4px 0;">11.2 &nbsp;교통비는 유류비, 통행료, 주차료, 차표 등이 포함되며, 자기차량 이용 시 유류비는 회사가 규정한 계산 방식에 따라 지급한다.</p>
       <p style="margin:0 0 4px 0;">11.3 &nbsp;숙박비는 야수(야수), 일비는 일수(일수)기준으로 [별지1]에 따라 지급하며, 실비정산을 원칙으로 하되 직급 구분에 따라 상한선 한도를 따른다.</p>
       <p style="margin:0 0 4px 0;">11.4 &nbsp;일비는 출장지역 내 교통비, 식대 등 일체를 포함한다.</p>
-      <p style="margin:0 0 14px 8px;">11.5 &nbsp;출장 회의식대는 대표이사 사전 승인 후 사용할 수 있다.</p>
+      <p style="margin:0 0 14px 0;">11.5 &nbsp;출장 회의식대는 대표이사 사전 승인 후 사용할 수 있다.</p>
 
       <p style="margin-bottom:10px;"><strong>12. 당일출장</strong><br>
       회사의 1일 업무 시간에 갈음하여 그 출장이 가능한 출장을 당일 출장이라 하고, 이에 대하여는 교통비, 일비를 지급한다.</p>
