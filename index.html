@@ -495,12 +495,20 @@
         </select>
       </div>
       <div>
-        <label class="block text-xs font-semibold text-gray-600 mb-1">현지 통화 → 원화 환율</label>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">USD → KRW 환율</label>
         <div class="flex gap-2 items-center">
-          <input type="number" id="o_exchangeRate" placeholder="1,400" min="1" oninput="o_calc()" class="form-input flex-1">
-          <span class="text-xs text-gray-500 whitespace-nowrap" id="o_rateUnit">원/USD</span>
+          <input type="number" id="o_usdRate" placeholder="1,400" min="1" step="1" oninput="o_calc()" class="form-input flex-1">
+          <span class="text-xs text-gray-500 whitespace-nowrap">원/USD</span>
         </div>
-        <p class="text-xs text-gray-400 mt-1">KRW 환산에 사용</p>
+        <p class="text-xs text-gray-400 mt-1">미입력 시 1,400 적용</p>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">JPY → KRW 환율</label>
+        <div class="flex gap-2 items-center">
+          <input type="number" id="o_jpyRate" placeholder="9.50" min="0.01" step="0.01" oninput="o_calc()" class="form-input flex-1">
+          <span class="text-xs text-gray-500 whitespace-nowrap">원/JPY</span>
+        </div>
+        <p class="text-xs text-gray-400 mt-1">미입력 시 9.50 적용</p>
       </div>
     </div>
   </div>
@@ -510,15 +518,23 @@
     <div class="card-title">④ 교통비</div>
     <div class="grid grid-cols-2 gap-3">
       <div>
-        <label class="block text-xs font-semibold text-gray-600 mb-1">항공료 <span id="o_transportUnit" class="font-normal text-gray-400">(USD)</span></label>
-        <input type="number" id="o_transportCost" placeholder="0" min="0" oninput="o_calc()" class="form-input">
+        <label class="block text-xs font-semibold text-gray-600 mb-1">항공료</label>
+        <div class="flex gap-1">
+          <select id="o_transportCur" onchange="o_calc()" class="form-input" style="width:72px;flex-shrink:0;padding-left:6px;padding-right:4px">
+            <option value="USD">USD</option>
+            <option value="JPY">JPY</option>
+            <option value="KRW">KRW</option>
+          </select>
+          <input type="number" id="o_transportCost" placeholder="0" min="0" oninput="o_calc()" class="form-input flex-1">
+        </div>
         <p class="text-xs text-gray-400 mt-1">항공료 또는 선박료 실비</p>
       </div>
       <div>
         <label class="block text-xs font-semibold text-gray-600 mb-1">적용 좌석 등급</label>
-        <div class="h-[39px] flex items-center px-3 bg-blue-50 border border-blue-200 rounded-lg text-xs font-semibold text-blue-900" id="o_classLabel">직원: Economy Class</div>
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-xs font-semibold text-blue-900" style="min-height:39px" id="o_classLabel">직원&nbsp;&nbsp;Economy Class</div>
       </div>
     </div>
+    <p class="text-xs text-gray-400 mt-2">※ 교통비(항공편)의 지급은 비행시간 기준 3시간 미만을 단거리로 함</p>
   </div>
 
   <!-- ⑤ 숙박비 -->
@@ -526,8 +542,15 @@
     <div class="card-title">⑤ 숙박비</div>
     <div class="grid grid-cols-3 gap-3 items-start">
       <div>
-        <label class="block text-xs font-semibold text-gray-600 mb-1">1박당 숙박비 <span id="o_accomUnit" class="font-normal text-gray-400">(USD)</span></label>
-        <input type="number" id="o_accommodationCost" placeholder="0" min="0" oninput="o_calc()" class="form-input">
+        <label class="block text-xs font-semibold text-gray-600 mb-1">1박당 숙박비</label>
+        <div class="flex gap-1">
+          <select id="o_accomCur" onchange="o_calc()" class="form-input" style="width:72px;flex-shrink:0;padding-left:6px;padding-right:4px">
+            <option value="USD">USD</option>
+            <option value="JPY">JPY</option>
+            <option value="KRW">KRW</option>
+          </select>
+          <input type="number" id="o_accommodationCost" placeholder="0" min="0" oninput="o_calc()" class="form-input flex-1">
+        </div>
       </div>
       <div>
         <label class="block text-xs font-semibold text-gray-600 mb-1">숙박 일수</label>
@@ -577,8 +600,15 @@
     <div class="card-title">⑦ 기타 경비 <span class="text-xs font-normal text-gray-400">(선택)</span></div>
     <div class="grid grid-cols-2 gap-3">
       <div>
-        <label class="block text-xs font-semibold text-gray-600 mb-1">기타 경비 <span id="o_miscUnit" class="font-normal text-gray-400">(USD)</span></label>
-        <input type="number" id="o_miscCost" placeholder="0" min="0" oninput="o_calc()" class="form-input">
+        <label class="block text-xs font-semibold text-gray-600 mb-1">기타 경비</label>
+        <div class="flex gap-1">
+          <select id="o_miscCur" onchange="o_calc()" class="form-input" style="width:72px;flex-shrink:0;padding-left:6px;padding-right:4px">
+            <option value="USD">USD</option>
+            <option value="JPY">JPY</option>
+            <option value="KRW">KRW</option>
+          </select>
+          <input type="number" id="o_miscCost" placeholder="0" min="0" oninput="o_calc()" class="form-input flex-1">
+        </div>
         <p class="text-xs text-gray-400 mt-1">사전 승인된 특별 경비</p>
       </div>
       <div>
@@ -771,6 +801,8 @@ function onGradeChange() {
   const lim = ACCOM_LIMIT[g];
   document.getElementById('accommodationLimitLabel').textContent =
     lim === Infinity ? '상한 없음 (실비)' : `${GRADE_LABEL[g]}: ${fmt(lim)}원/박`;
+  o_updateClassLabel(g);
+  o_updateLimitLabel();
   calc();
 }
 
@@ -1254,14 +1286,34 @@ function o_updateDays() {
 // ─── 해외출장: 지역 변경 ─────────────────────────────────────────────────────
 
 function o_updateRegion() {
-  const region = document.getElementById('o_region').value;
-  const cur    = O_CURRENCY_LABEL[region];
-  ['o_transportUnit','o_accomUnit','o_miscUnit'].forEach(id => {
-    document.getElementById(id).textContent = `(${cur})`;
-  });
-  document.getElementById('o_rateUnit').textContent = `원/${cur}`;
   o_updateLimitLabel();
   o_calc();
+}
+
+// 좌석 등급 레이블 업데이트 (onGradeChange에서도 호출)
+function o_updateClassLabel(grade) {
+  grade = grade || document.getElementById('empGrade').value;
+  const cl  = O_CLASS[grade] || O_CLASS.staff;
+  const lbl = document.getElementById('o_classLabel');
+  if (!lbl) return;
+  const long  = cl[0];
+  const short = cl[1];
+  if (long === short) {
+    lbl.innerHTML = `<span class="text-blue-800">${O_GRADE_LABEL[grade]}</span>&nbsp;&nbsp;${long}`;
+  } else {
+    lbl.innerHTML = `<span class="text-blue-800">${O_GRADE_LABEL[grade]}</span>&nbsp;&nbsp;`
+      + `<span>장거리 <strong>${long}</strong></span>`
+      + `<span class="mx-1 text-blue-300">/</span>`
+      + `<span>단거리 <strong>${short}</strong></span>`;
+  }
+}
+
+// 통화 → 원화 환산 헬퍼
+function o_toKrw(amount, cur, usdRate, jpyRate) {
+  if (!amount) return 0;
+  if (cur === 'KRW') return Math.round(amount);
+  if (cur === 'JPY') return Math.round(amount * jpyRate);
+  return Math.round(amount * usdRate); // USD default
 }
 
 function o_updateLimitLabel() {
@@ -1282,8 +1334,11 @@ function o_calc() {
   const region     = document.getElementById('o_region').value;
   const grade      = document.getElementById('empGrade').value;
   const flightType = document.getElementById('o_flightType').value;
-  const cur        = O_CURRENCY_LABEL[region];
-  const rate       = parseFloat(document.getElementById('o_exchangeRate').value) || 1400;
+  const cur      = O_CURRENCY_LABEL[region];
+  const usdRate  = parseFloat(document.getElementById('o_usdRate').value) || 1400;
+  const jpyRate  = parseFloat(document.getElementById('o_jpyRate').value) || 9.5;
+  // 지역 기본 통화 기준 환율 (일비 계산용)
+  const rate     = (region === 'japan_jpy') ? jpyRate : usdRate;
 
   const d1 = document.getElementById('o_departDate').value;
   const d2 = document.getElementById('o_returnDate').value;
@@ -1293,9 +1348,7 @@ function o_calc() {
   const longStay = totalDays >= 30;
 
   // 좌석 등급 표시
-  const classArr = O_CLASS[grade] || O_CLASS.staff;
-  document.getElementById('o_classLabel').textContent =
-    `${O_GRADE_LABEL[grade]}: ${classArr[flightType === 'long' ? 0 : 1]}`;
+  o_updateClassLabel(grade);
 
   // 일비 단가
   const dailyRate = O_DAILY[region]?.[grade] || 0;
@@ -1309,41 +1362,50 @@ function o_calc() {
     `${dailyTotal.toLocaleString()} ${cur} → ${fmt(Math.round(dailyTotal * rate))}원`;
 
   // 교통비
-  const transportFx = parseFloat(document.getElementById('o_transportCost').value) || 0;
-  const transportKrw = Math.round(transportFx * rate);
+  const transportAmt = parseFloat(document.getElementById('o_transportCost').value) || 0;
+  const transportCur = document.getElementById('o_transportCur').value;
+  const transportKrw = o_toKrw(transportAmt, transportCur, usdRate, jpyRate);
 
   // 숙박비
-  const accomPerNightFx = parseFloat(document.getElementById('o_accommodationCost').value) || 0;
-  const stayDays        = parseInt(document.getElementById('o_stayDays').value) || nights;
-  const limFx           = O_ACCOM_LIMIT[region]?.[grade];
-  const appliedPerNight = (limFx !== null && accomPerNightFx > limFx) ? limFx : accomPerNightFx;
-  let accomTotalFx = appliedPerNight * stayDays;
-  if (longStay) accomTotalFx = Math.round(accomTotalFx * 0.3);
-  const accomKrw = Math.round(accomTotalFx * rate);
+  const accomPerNightAmt = parseFloat(document.getElementById('o_accommodationCost').value) || 0;
+  const accomCur         = document.getElementById('o_accomCur').value;
+  const stayDays         = parseInt(document.getElementById('o_stayDays').value) || nights;
+  // 상한선: 지역 통화 기준 → 원화로 변환해서 비교
+  const limFx     = O_ACCOM_LIMIT[region]?.[grade]; // 지역 통화 단위
+  const limKrw    = limFx !== null ? o_toKrw(limFx, cur, usdRate, jpyRate) : null;
+  const accomKrwPerNight = o_toKrw(accomPerNightAmt, accomCur, usdRate, jpyRate);
+  const appliedKrwPerNight = (limKrw !== null && accomKrwPerNight > limKrw) ? limKrw : accomKrwPerNight;
+  let accomTotalKrw = appliedKrwPerNight * stayDays;
+  if (longStay) accomTotalKrw = Math.round(accomTotalKrw * 0.3);
+  const accomKrw = accomTotalKrw;
 
   // 숙박 초과 경고
   const accomWarn = document.getElementById('o_accommodationWarn');
-  if (limFx !== null && accomPerNightFx > limFx) {
-    accomWarn.textContent = `⚠️ 1박당 숙박비(${accomPerNightFx.toLocaleString()} ${cur})가 상한선(${limFx.toLocaleString()} ${cur})을 초과합니다. 상한선 금액으로 정산됩니다.`;
+  if (limKrw !== null && accomKrwPerNight > limKrw) {
+    accomWarn.textContent = `⚠️ 1박당 숙박비(${accomKrwPerNight.toLocaleString()}원)가 상한선(${limKrw.toLocaleString()}원 / ${limFx.toLocaleString()} ${cur})을 초과합니다. 상한선 금액으로 정산됩니다.`;
     accomWarn.classList.remove('hidden');
   } else {
     accomWarn.classList.add('hidden');
   }
   o_updateLimitLabel();
 
-  // 숙박 상한선 레이블 업데이트
+  // 숙박 상세 레이블
   const accomDetailRow = document.getElementById('o_r_accom_detail_row');
   const accomDetail    = document.getElementById('o_r_accom_detail');
   if (stayDays > 0) {
-    accomDetail.textContent = `${appliedPerNight.toLocaleString()} ${cur} × ${stayDays}박${longStay?' (30%감액)':''}`;
+    const dispAmt = accomCur === 'KRW'
+      ? `${fmt(appliedKrwPerNight)}원`
+      : `${accomPerNightAmt.toLocaleString()} ${accomCur}→${fmt(appliedKrwPerNight)}원`;
+    accomDetail.textContent = `${dispAmt} × ${stayDays}박${longStay?' (30%감액)':''}`;
     accomDetailRow.style.display = '';
   } else {
     accomDetailRow.style.display = 'none';
   }
 
   // 기타 경비
-  const miscFx  = parseFloat(document.getElementById('o_miscCost').value) || 0;
-  const miscKrw = Math.round(miscFx * rate);
+  const miscAmt  = parseFloat(document.getElementById('o_miscCost').value) || 0;
+  const miscCur  = document.getElementById('o_miscCur').value;
+  const miscKrw  = o_toKrw(miscAmt, miscCur, usdRate, jpyRate);
   const miscDesc = document.getElementById('o_miscDesc').value || '기타 경비';
   const miscRow  = document.getElementById('o_r_misc_row');
   if (miscFx > 0) {
@@ -1382,9 +1444,13 @@ function o_resetForm() {
   document.getElementById('o_destination').value = '';
   document.getElementById('o_region').value = 'gapji_usd';
   document.getElementById('o_flightType').value = 'long';
-  document.getElementById('o_exchangeRate').value = '';
+  document.getElementById('o_usdRate').value = '';
+  document.getElementById('o_jpyRate').value = '';
+  document.getElementById('o_transportCur').value = 'USD';
   document.getElementById('o_transportCost').value = '';
+  document.getElementById('o_accomCur').value = 'USD';
   document.getElementById('o_accommodationCost').value = '';
+  document.getElementById('o_miscCur').value = 'USD';
   document.getElementById('o_miscCost').value = '';
   document.getElementById('o_miscDesc').value = '';
   document.getElementById('o_notes').value = '';
