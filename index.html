@@ -1280,9 +1280,9 @@ const O_DAILY = {
 };
 // 숙박 상한 (null = 실비 무제한)
 const O_ACCOM_LIMIT = {
-  gapji_usd: { chairman:null, ceo:null, executive:200, staff:null },
-  eulji_usd: { chairman:null, ceo:null, executive:180, staff:null },
-  japan_jpy: { chairman:null, ceo:null, executive:25000, staff:null },
+  gapji_usd: { chairman:null, ceo:null, executive:200, staff:200 },
+  eulji_usd: { chairman:null, ceo:null, executive:180, staff:180 },
+  japan_jpy: { chairman:null, ceo:null, executive:25000, staff:25000 },
 };
 // 항공 좌석 등급 [장거리, 단거리]
 const O_CLASS = {
@@ -1426,11 +1426,22 @@ function o_calc() {
   const perNightKrw = stayDays > 0 ? Math.round(accomTotalKrwRaw / stayDays) : 0;
   const perNightLbl = document.getElementById('o_perNightLabel');
   if (perNightLbl) {
-    perNightLbl.textContent = stayDays > 0
-      ? (accomCur === 'KRW'
-          ? `${fmt(perNightKrw)}원`
-          : `${perNightAmt.toLocaleString()} ${accomCur} / ${fmt(perNightKrw)}원`)
-      : '-';
+    if (stayDays > 0) {
+      // 지역 통화 환산 (상한 비교용 통화로 표시)
+      const perNightInRegionCur = rate > 0 ? Math.round(perNightKrw / rate) : 0;
+      if (accomCur === 'KRW') {
+        // 원화 입력 → 원화 + 지역통화 환산
+        perNightLbl.textContent = `${fmt(perNightKrw)}원 / ${perNightInRegionCur.toLocaleString()} ${cur}`;
+      } else if (accomCur === cur) {
+        // 지역통화 입력 → 지역통화 + 원화
+        perNightLbl.textContent = `${perNightAmt.toLocaleString()} ${cur} / ${fmt(perNightKrw)}원`;
+      } else {
+        // 제3통화 입력 → 입력통화 + 원화 + 지역통화
+        perNightLbl.textContent = `${perNightAmt.toLocaleString()} ${accomCur} / ${fmt(perNightKrw)}원 / ${perNightInRegionCur.toLocaleString()} ${cur}`;
+      }
+    } else {
+      perNightLbl.textContent = '-';
+    }
   }
 
   // 상한선: 지역 통화 기준 → 원화로 변환해서 1박당 비교
