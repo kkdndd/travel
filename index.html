@@ -545,7 +545,7 @@
   </div>
 
   <!-- ⑤ 숙박비 -->
-  <div class="card">
+  <div class="card" id="o_accomCard">
     <div class="card-title">⑤ 숙박비</div>
     <div class="grid gap-3 items-start" style="grid-template-columns: 3fr 1fr 5fr 3fr;">
       <div>
@@ -815,7 +815,30 @@ function onGradeChange() {
     lim === Infinity ? '상한 없음 (실비)' : `${GRADE_LABEL[g]}: ${fmt(lim)}원/박`;
   o_updateClassLabel(g);
   o_updateLimitLabel();
+  o_toggleAccomCard(g);
   calc();
+  o_calc();
+}
+
+function o_toggleAccomCard(grade) {
+  grade = grade || document.getElementById('empGrade').value;
+  const card = document.getElementById('o_accomCard');
+  if (!card) return;
+  const isChair = grade === 'chairman';
+  card.querySelectorAll('input, select').forEach(el => el.disabled = isChair);
+  card.style.opacity      = isChair ? '0.45' : '1';
+  card.style.pointerEvents = isChair ? 'none' : '';
+  let note = card.querySelector('.chair-accom-note');
+  if (isChair) {
+    if (!note) {
+      note = document.createElement('p');
+      note.className = 'chair-accom-note text-xs text-blue-600 mt-2 font-semibold';
+      note.textContent = '※ 회장 숙박비는 실비 정산 (상한 없음)';
+      card.appendChild(note);
+    }
+  } else {
+    if (note) note.remove();
+  }
 }
 
 // ─── 출장 기간 ───────────────────────────────────────────────────────────────
@@ -1266,6 +1289,7 @@ function switchTripType(type) {
   if (!isDom) {
     o_updateDays();
     o_updateRegion();
+    o_toggleAccomCard();
     o_calc();
   }
 }
