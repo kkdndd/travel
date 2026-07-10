@@ -816,8 +816,33 @@ function onGradeChange() {
   o_updateClassLabel(g);
   o_updateLimitLabel();
   o_toggleAccomCard(g);
+  o_updateDailySection(g);
   calc();
   o_calc();
+}
+
+function o_updateDailySection(grade) {
+  grade = grade || document.getElementById('empGrade').value;
+  const region = document.getElementById('o_region')?.value;
+  if (!region) return;
+  const cur       = O_CURRENCY_LABEL[region];
+  const usdRate   = parseComma(document.getElementById('o_usdRate').value) || 1400;
+  const jpyRate   = (parseFloat(document.getElementById('o_jpyRate').value) || 950) / 100;
+  const rate      = region === 'japan_jpy' ? jpyRate : usdRate;
+  const dailyRate = O_DAILY[region]?.[grade] || 0;
+  const d1        = document.getElementById('o_departDate')?.value;
+  const d2        = document.getElementById('o_returnDate')?.value;
+  const totalDays = (d1 && d2) ? Math.round((new Date(d2) - new Date(d1)) / 86400000) + 1 : 0;
+  const longStay  = totalDays >= 30;
+  let dailyTotal  = dailyRate * totalDays;
+  if (longStay) dailyTotal = Math.round(dailyTotal * 0.3);
+  const lbl = document.getElementById('o_dailyRateLabel');
+  const daysLbl = document.getElementById('o_dailyDaysLabel');
+  const totalLbl = document.getElementById('o_dailyTotalLabel');
+  if (lbl)     lbl.textContent = `${dailyRate.toLocaleString()} ${cur}/일`;
+  if (daysLbl) daysLbl.textContent = `${totalDays}일`;
+  if (totalLbl) totalLbl.textContent =
+    `${dailyTotal.toLocaleString()} ${cur} → ${fmt(Math.round(dailyTotal * rate))}원`;
 }
 
 function o_toggleAccomCard(grade) {
@@ -833,7 +858,7 @@ function o_toggleAccomCard(grade) {
     if (!note) {
       note = document.createElement('p');
       note.className = 'chair-accom-note text-xs text-blue-600 mt-2 font-semibold';
-      note.textContent = '※ 회장 숙박비는 실비 정산 (상한 없음)';
+      note.textContent = '※ 회장 숙박비는 일비와 합산하여 일괄지급';
       card.appendChild(note);
     }
   } else {
